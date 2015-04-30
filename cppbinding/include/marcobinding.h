@@ -6,6 +6,6 @@
 
 using namespace std;
 
-int request_for(wchar_t* service);
+vector<string> request_for(wchar_t* service);
 
 #endif

@@ -1,4 +1,4 @@
-
+#include "marcoexception.h"
 #include <iostream>
 #include <exception>
 #include <vector>
@@ -26,7 +26,7 @@
 #define UTF8_SEQUENCE_MAXLEN 8
 using namespace std;
 
-int request_for(wchar_t* service){
+vector<string> request_for(wchar_t* service){
 	int sd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct sockaddr_in bind_addr;
 
@@ -49,10 +49,6 @@ int request_for(wchar_t* service){
 
 	JSONValue *value = new JSONValue(j);
 
-	//printf("%ls", value->Stringify().c_str());
-	
-
-
 	const wchar_t *wcs = value->Stringify().c_str();
     signed char utf8[(wcslen(wcs) + 1 /* L'\0' */) * UTF8_SEQUENCE_MAXLEN];
     char *iconv_in = (char *) wcs;
@@ -74,43 +70,23 @@ int request_for(wchar_t* service){
     char to_arr_aux[response];
     strncpy(to_arr_aux, recv_response, response);
     
-    printf("%s", to_arr_aux);
-    
     size_t c = utf8_to_wchar(to_arr_aux, response, to_arr, response, 0);
     
     string str = to_arr_aux;
     
     rapidjson::Document document;
-    if(document.Parse<0>(str.c_str()).HasParseError())
-    	printf("Error\n");
-    else
-    	printf("No. Size: %d\n", document.Size());
+    if(document.Parse<0>(str.c_str()).HasParseError()){
+    	throw marcoexception("Internal error on parsing");
+	}
+
     assert(document.IsArray());
 
+    vector<string> return_hosts;
+
     for(int i= 0; i<document.Size();i++){
-    	printf("%s", document[i]["Address"][0].GetString());
+    	return_hosts.push_back(document[i]["Address"][0].GetString());
     }
 
-/*	rapidjson::GenericDocument<rapidjson::UTF8 <>> d;
- 	char buffer[sizeof(to_arr_aux)];
-    memcpy(buffer, to_arr_aux, sizeof(to_arr_aux));
-    
-    if (d.ParseInsitu(buffer).HasParseError()){
-        printf("Error");
-        return 1;
-    }*/
-
-    
-    /*d.Parse(recv_response);
-    printf("%d",d.Size());*/
-
-/*
-    JSONValue *jresponse = JSON::Parse(to_arr);
-    if(jresponse == NULL){
-    	printf("Error");
-    }
-    //printf(jresponse->IsObject() ?  "Si" : "No");
-    printf("%s\n--------------------------\n", recv_response);
-    printf("%ls", to_arr);*/
+    return return_hosts;
 
 }
