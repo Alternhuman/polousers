@@ -23,6 +23,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "conf.h"
 #define UTF8_SEQUENCE_MAXLEN 8
 using namespace std;
 
@@ -38,10 +39,10 @@ vector<string> request_for(wchar_t* service){
 	bzero((char *) &bind_addr, sizeof(bind_addr));
 
 	bind_addr.sin_family = AF_INET;
-	bind_addr.sin_port = htons(1358);
+	bind_addr.sin_port = htons(PORT+20);
 	bind_addr.sin_addr.s_addr = inet_addr("127.0.1.1");
 
-	socklen_t m = sizeof(bind_addr);
+	socklen_t size_addr = sizeof(bind_addr);
 
 	JSONObject j;
 	j[L"Command"] = new JSONValue(L"Request-For");
@@ -61,7 +62,7 @@ vector<string> request_for(wchar_t* service){
     if(b < 1){
     	perror("Internal error during UTF-8 conversion");
     }
-    sendto(sd,iconv_out,(b/4)-1,0,(struct sockaddr *)&bind_addr,m);
+    sendto(sd,iconv_out,(b/4)-1,0,(struct sockaddr *)&bind_addr,size_addr);
     
     char recv_response[250];
     size_t response = recv(sd, recv_response, 250,0);

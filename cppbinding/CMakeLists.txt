@@ -3,7 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( POLOCPPBINDING )
 
 SET( POLOCPPBINDING_SRCS
-  ${CMAKE_SOURCE_DIR}/src/test.cpp
+  #${CMAKE_SOURCE_DIR}/src/test.cpp
+  ${CMAKE_SOURCE_DIR}/src/createdirs.cpp
   ${CMAKE_SOURCE_DIR}/src/marcobinding.cpp
   ${CMAKE_SOURCE_DIR}/src/marcoexception.cpp
   ${CMAKE_SOURCE_DIR}/src/JSON.cpp

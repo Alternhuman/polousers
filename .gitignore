@@ -10,3 +10,7 @@ tmp/
 doc/build/*
 *__pycache__/*
 env/*
+CMakeFiles
+CMakeFiles/*
+*/CMakeFiles/*
+cppbinding/CMakeFiles/*
