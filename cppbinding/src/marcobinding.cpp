@@ -19,6 +19,10 @@
 #include <iconv.h>
 
 #include "utf8.h"
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #define UTF8_SEQUENCE_MAXLEN 8
 using namespace std;
 
@@ -34,7 +38,7 @@ int request_for(wchar_t* service){
 	bzero((char *) &bind_addr, sizeof(bind_addr));
 
 	bind_addr.sin_family = AF_INET;
-	bind_addr.sin_port = htons(1348);
+	bind_addr.sin_port = htons(1358);
 	bind_addr.sin_addr.s_addr = inet_addr("127.0.1.1");
 
 	socklen_t m = sizeof(bind_addr);
@@ -62,12 +66,51 @@ int request_for(wchar_t* service){
     	perror("Internal error during UTF-8 conversion");
     }
     sendto(sd,iconv_out,(b/4)-1,0,(struct sockaddr *)&bind_addr,m);
-    recv(sd, iconv_out, iconv_out_bytes,0);
     
+    char recv_response[250];
+    size_t response = recv(sd, recv_response, 250,0);
 
-    /*wchar_t * to_arr;
-    size_t c = wchar_to_utf8(iconv_out, iconv_out_bytes, to_arr, iconv_in_bytes, 0);
-*/
-    printf("%ls", iconv_out);
+    wchar_t to_arr[response];
+    char to_arr_aux[response];
+    strncpy(to_arr_aux, recv_response, response);
+    
+    printf("%s", to_arr_aux);
+    
+    size_t c = utf8_to_wchar(to_arr_aux, response, to_arr, response, 0);
+    
+    string str = to_arr_aux;
+    
+    rapidjson::Document document;
+    if(document.Parse<0>(str.c_str()).HasParseError())
+    	printf("Error\n");
+    else
+    	printf("No. Size: %d\n", document.Size());
+    assert(document.IsArray());
+
+    for(int i= 0; i<document.Size();i++){
+    	printf("%s", document[i]["Address"][0].GetString());
+    }
+
+/*	rapidjson::GenericDocument<rapidjson::UTF8 <>> d;
+ 	char buffer[sizeof(to_arr_aux)];
+    memcpy(buffer, to_arr_aux, sizeof(to_arr_aux));
+    
+    if (d.ParseInsitu(buffer).HasParseError()){
+        printf("Error");
+        return 1;
+    }*/
+
+    
+    /*d.Parse(recv_response);
+    printf("%d",d.Size());*/
+
+/*
+    JSONValue *jresponse = JSON::Parse(to_arr);
+    if(jresponse == NULL){
+    	printf("Error");
+    }
+    //printf(jresponse->IsObject() ?  "Si" : "No");
+    printf("%s\n--------------------------\n", recv_response);
+    printf("%ls", to_arr);*/
 
 }

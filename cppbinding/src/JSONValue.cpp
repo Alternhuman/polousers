@@ -52,8 +52,9 @@ JSONValue *JSONValue::Parse(const wchar_t **data)
 	if (**data == '"')
 	{
 		std::wstring str;
-		if (!JSON::ExtractString(&(++(*data)), str))
+		if (!JSON::ExtractString(&(++(*data)), str)){
 			return NULL;
+		}
 		else
 			return new JSONValue(str);
 	}

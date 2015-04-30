@@ -25,7 +25,7 @@ INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/include" )
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
 
 ADD_EXECUTABLE( marcobinding ${POLOCPPBINDING_SRCS})
-
+find_package(RapidJSON)
 # INSTALL(
 #      TARGETS
 #      marcobinding

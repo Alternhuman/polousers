@@ -176,6 +176,9 @@ POLOCPPBINDING_BINARY_DIR:STATIC=/home/martin/TFG/workspaces/polousers/cppbindin
 //Value Computed by CMake
 POLOCPPBINDING_SOURCE_DIR:STATIC=/home/martin/TFG/workspaces/polousers/cppbinding
 
+//The directory containing a CMake configuration file for RapidJSON.
+RapidJSON_DIR:PATH=/usr/local/lib/cmake/RapidJSON
+
 
 ########################
 # INTERNAL cache entries
