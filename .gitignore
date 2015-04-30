@@ -1,0 +1,12 @@
+*.out
+.*tmp/*
+tmp/
+*.pyc
+*.aux
+*.blg
+*.fls
+*.log
+.idea/*
+doc/build/*
+*__pycache__/*
+env/*
