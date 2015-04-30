@@ -26,3 +26,5 @@ CMakeFiles/marcobinding.dir/src/marcobinding.cpp.o: include/utf8.h
 CMakeFiles/marcobinding.dir/src/marcoexception.cpp.o: src/marcoexception.cpp
 CMakeFiles/marcobinding.dir/src/marcoexception.cpp.o: include/marcoexception.h
 
+CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o: src/pam_polousers.cpp
+

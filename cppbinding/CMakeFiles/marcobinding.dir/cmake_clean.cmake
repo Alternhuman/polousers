@@ -5,8 +5,9 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/marcobinding.dir/src/JSON.cpp.o"
   "CMakeFiles/marcobinding.dir/src/JSONValue.cpp.o"
   "CMakeFiles/marcobinding.dir/src/utf8.c.o"
-  "marcobinding.pdb"
-  "marcobinding"
+  "CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o"
+  "libmarcobinding.pdb"
+  "libmarcobinding.so"
 )
 
 # Per-language clean rules from dependency scanning.
