@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/martin/TFG/workspaces/polousers/cppbinding/src/test.cpp
+stdio.h
+-
+marcobinding.h
+/home/martin/TFG/workspaces/polousers/cppbinding/src/marcobinding.h
+
+include/marcobinding.h
+iostream
+-
+vector
+-
+
