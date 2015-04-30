@@ -61,6 +61,8 @@
 #define MKHOMEDIR_QUIET      040	/* keep quiet about things */
 
 
+#include "createdirs.h"
+
 static unsigned int UMask = 0022; //Permission mask for the user (755)
 static char SkelDir[BUFSIZ] = "/etc/skel"; /* THIS MODULE IS NOT THREAD SAFE */
 
@@ -344,6 +346,16 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
    return PAM_SUCCESS;
 }
 
+static int create_polo_homedir(pam_handle_t * pamh, int ctrl,
+                          const struct passwd *pwd,const char *dest)
+{
+	int uid = pwd->pw_uid;
+	int gid = pwd->pw_gid;
+
+	return createdirs(dest, uid, gid);
+
+}
+
 /* --- authentication management functions (only) --- */
 
 PAM_EXTERN
@@ -379,8 +391,8 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
    if (stat(pwd->pw_dir,&St) == 0)
       return PAM_SUCCESS;
 
-   //return create_polo_homedir(pamh, ctrl, pwd, SkelDir, pwd->pwd_dir);
-   return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
+   return create_polo_homedir(pamh, ctrl, pwd, pwd->pw_dir);
+   //return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
 }
 
 /* Ignore */

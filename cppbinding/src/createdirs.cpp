@@ -19,19 +19,20 @@
 
 using namespace std;
 
-int createdirs(string home, int uid, int gid){
+extern "C" int createdirs(const char* home, int uid, int gid){
 
 	int sd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct sockaddr_in poloserver;
 	size_t size_addr = sizeof(poloserver);
-	//std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
+	
 
 	std::vector<string> nodes;
 	nodes.push_back("127.0.1.1");
+	//std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
 
 	if (sd < 0){
 		perror("Internal error when opening connection to Marco");
-		throw marcoexception("Internal error when opening connection to Marco");
+		return -1;
 	}
 
 	for(int i=0; i<nodes.size();i++){
@@ -51,7 +52,7 @@ int createdirs(string home, int uid, int gid){
 		writer.AddMember("Command", Command, allocator);
 		
 		char aux[BUFFSIZE];
-		int len = sprintf(aux, "%s,%d,%d", home.c_str(), uid, gid);
+		int len = sprintf(aux, "%s,%d,%d", home, uid, gid);
 		char aux2[len];
 		strcpy(aux2, aux);
 
@@ -69,6 +70,7 @@ int createdirs(string home, int uid, int gid){
 		sendto(sd,data_arr,sizeof(data_arr),0,(struct sockaddr *)&poloserver,size_addr);
 
 	}
+	return 0;
 
 }
 
