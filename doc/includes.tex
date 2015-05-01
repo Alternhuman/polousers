@@ -71,7 +71,7 @@
 \usepackage{listings}
 
 \newcommand*\lstinputpath[1]{\lstset{inputpath=#1}}
-
+\usepackage{xcolor}
 %\setlength\parindent{0pt} % Removes all indentation from paragraphs
 
 %\renewcommand{\labelenumi}{\alph{enumi}.} % Descomentar para que la enumeración en el entorno enumerate sea mediante letras en vez de números
@@ -80,40 +80,33 @@
 
 
 %Lenguajes de los que mostrar código
-\lstloadlanguages{Java,XML}
+\lstloadlanguages{c}
 
-% %Ajustes para Java
-% \lstset{
-% 	language=java,
-%  	frame=single, % Un marco simple alrededor del código
-%     basicstyle=\small\ttfamily, % Utilizar fuente true type pequeña
-%     keywordstyle=[1]\color{Blue}\bf, % Funciones en negrita y azul
-%     keywordstyle=[2]\color{Purple}, % Argumentos en morado
-%     keywordstyle=[3]\color{Blue}\underbar, % Funciones personalizadas subrayadas en azul
-%     identifierstyle=, % Nada especial acerca de identificadores
-%     commentstyle=\usefont{T1}{pcr}{m}{sl}\color{Green}\small, % Los comentarios se renderizan en fuente pequeña verde
-%     stringstyle=\color{Purple}, % Cadenas en morado
-%     showstringspaces=false, % No se muestran los espacios entre cadenas
-%     tabsize=5, % 5 espacios por tabulado
-%     %
-%     % Put standard Perl functions not included in the default language here
-%     %morekeywords={rand},
-%     %
-%     % Put Perl function parameters here
-%     %morekeywords=[2]{on, off, interp},
-%     %
-%     % Put user defined functions here
-%     %morekeywords=[3]{test},
-%    	%
-%     morecomment=[l][\color{Blue}]{...}, % Line continuation (...) like blue comment
-%     numbers=left, % Número de línea a la izquierda
-%     firstnumber=1, % Número de línea comienza en 1
-%     numberstyle=\tiny\color{Blue}, % Los números de línea son azules y pequeños
-%     stepnumber=5, % Los números de línea van de 5 en 5
-%     breaklines=true % Salto de línea si el texto no entra. See http://stackoverflow.com/a/1875803
-% }
+% %Ajustes para C
+  \lstset{
+  	language=c,
+   	frame=single, % Un marco simple alrededor del código
+      basicstyle=\small\ttfamily, % Utilizar fuente true type pequeña
+      keywordstyle=[1]\color{Blue}\bf, % Funciones en negrita y azul
+      keywordstyle=[2]\color{Purple}, % Argumentos en morado
+      keywordstyle=[3]\color{Blue}\underbar, % Funciones personalizadas subrayadas en azul
+      %identifierstyle=, % Nada especial acerca de identificadores
+      %commentstyle=\usefont{T1}{pcr}{m}{sl}\color{Green}\small, % Los comentarios se renderizan en fuente pequeña verde
+      stringstyle=\color{Purple}, % Cadenas en morado
+      showstringspaces=false, % No se muestran los espacios entre cadenas
+      tabsize=4, % 5 espacios por tabulado
+	  numbers=left,
+	  firstnumber=1,
+	  numberstyle=\tiny\color{Blue},
+	  stepnumber=5,
+	  breaklines=true
+}
 
-\lstinputpath{conffiles}
+\newcommand{\cfile}[4]{
+	\lstinputlisting[language=c, caption=#2, label=#1, firstline=#3, lastline=#4]{#1.c}
+}
+
+\lstinputpath{src}
 
 \lstdefinelanguage{kurt}{% new language for listings
   morekeywords={parameter1,parameter2,wert},
