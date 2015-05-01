@@ -6,37 +6,3 @@
 
 #IncludeRegexTransform: 
 
-/home/martin/TFG/workspaces/polousers/cppbinding/src/pam_mkpolohomedir.c
-security/_pam_types.h
--
-stdarg.h
--
-sys/types.h
--
-sys/stat.h
--
-fcntl.h
--
-unistd.h
--
-pwd.h
--
-stdlib.h
--
-stdio.h
--
-string.h
--
-dirent.h
--
-syslog.h
--
-security/pam_modules.h
--
-security/_pam_macros.h
--
-createdirs.h
-/home/martin/TFG/workspaces/polousers/cppbinding/src/createdirs.h
-
-include/createdirs.h
-

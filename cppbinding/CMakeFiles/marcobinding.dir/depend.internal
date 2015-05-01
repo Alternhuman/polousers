@@ -18,6 +18,7 @@ CMakeFiles/marcobinding.dir/src/JSONValue.cpp.o
 CMakeFiles/marcobinding.dir/src/createdirs.cpp.o
  /home/martin/TFG/workspaces/polousers/cppbinding/src/createdirs.cpp
  include/conf.h
+ include/marcobinding.h
  include/marcoexception.h
 CMakeFiles/marcobinding.dir/src/marcobinding.cpp.o
  /home/martin/TFG/workspaces/polousers/cppbinding/src/marcobinding.cpp

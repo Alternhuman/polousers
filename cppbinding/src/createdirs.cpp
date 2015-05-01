@@ -1,4 +1,5 @@
 #include "marcoexception.h"
+#include "marcobinding.h"
 #include "conf.h"
 
 #include <stdio.h>
@@ -28,7 +29,7 @@ extern "C" int createdirs(const char* home, int uid, int gid){
 
 	std::vector<string> nodes;
 	nodes.push_back("127.0.1.1");
-	//std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
+	std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
 
 	if (sd < 0){
 		perror("Internal error when opening connection to Marco");
