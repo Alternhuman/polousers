@@ -10,7 +10,7 @@ SET( POLOCPPBINDING_SRCS
   ${CMAKE_SOURCE_DIR}/src/JSON.cpp
   ${CMAKE_SOURCE_DIR}/src/JSONValue.cpp
   ${CMAKE_SOURCE_DIR}/src/utf8.c
-  ${CMAKE_SOURCE_DIR}/src/pam_polousers.cpp
+  ${CMAKE_SOURCE_DIR}/src/pam_mkpolohomedir.c
   #${CMAKE_SOURCE_DIR}/src/pam_mkhomedir.c
 
   )

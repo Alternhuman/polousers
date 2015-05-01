@@ -19,12 +19,13 @@
    account    sufficient pam_ldap.so
    account    required   pam_pwdb.so
    session    required   pam_mkhomedir.so skel=/etc/skel/ umask=0022
+   session    required   pam_mkpolohomedir.so skel=/etc/skel/ umask=0022
    session    required   pam_pwdb.so
    session    optional   pam_lastlog.so
    password   required   pam_pwdb.so   
    
    Released under the GNU LGPL version 2 or later
-   Originally written by Diego Martin <martinarroyo@usal.es> Apr 2015
+   Written by Diego Martin <martinarroyo@usal.es> Apr 2015
    Partially based on the Make Home PAM Module by written by Jason Gunthorpe <jgg@debian.org> Feb 1999
    Also based on the PAM Face Authentication Module by Rohan Anil (rohan.anil@gmail.com) and
      Alex Lau ( avengermojo@gmail.com) 
@@ -32,8 +33,6 @@
 
 #include <security/_pam_types.h>
 
-#define _GNU_SOURCE 1
-/* I want snprintf dammit */
 #define _GNU_SOURCE 1
 #include <stdarg.h>
 #include <sys/types.h>
@@ -46,6 +45,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <syslog.h>
+
+
 /* here, we make a definition for the externally accessible function
  * in this file (this definition is required for static a module
  * but strongly encouraged generally) it is used to instruct the
@@ -60,27 +61,12 @@
 #define MKHOMEDIR_DEBUG      020	/* keep quiet about things */
 #define MKHOMEDIR_QUIET      040	/* keep quiet about things */
 
-
 #include "createdirs.h"
+
 
 static unsigned int UMask = 0022; //Permission mask for the user (755)
 static char SkelDir[BUFSIZ] = "/etc/skel"; /* THIS MODULE IS NOT THREAD SAFE */
 
-/*
- * here, we make a definition for the externally accessible function
- * in this file (this definition is required for static a module
- * but strongly encouraged generally) it is used to instruct the
- * modules include file to define the function prototypes.
- */
-
-/*#define PAM_SM_SESSION
-
-#include <security/pam_modules.h>
-#include <security/_pam_macros.h>
-
-static unsigned int UMask = 0022; //Directory permissions 775 and default file permissions are 664.
-static char SkelDir[BUFSIZ] = "/etc/skel";
-*/
 
 /* some syslogging */
 static void _log_err(int err, const char *format, ...)
@@ -94,7 +80,7 @@ static void _log_err(int err, const char *format, ...)
     closelog();
 }
 
-
+/* parsing of arguments */
 static int _pam_parse(int flags, int argc, const char **argv)
 {
    int ctrl = 0;
@@ -131,7 +117,7 @@ static int _pam_parse(int flags, int argc, const char **argv)
 /* This common function is used to send a message to the applications 
    conversion function. Our only use is to ask the application to print 
    an informative message that we are creating a home directory */
-/*static int converse(pam_handle_t * pamh, int ctrl, int nargs
+static int converse(pam_handle_t * pamh, int ctrl, int nargs
 		    ,struct pam_message **message
 		    ,struct pam_response **response)
 {
@@ -165,10 +151,10 @@ static int _pam_parse(int flags, int argc, const char **argv)
    D(("ready to return from module conversation"));
 
    return retval;		// propagate error status 
-}*/
+}
 
 /* Ask the application to display a short text string for us. */
-/*static int make_remark(pam_handle_t * pamh, int ctrl, const char *remark)
+static int make_remark(pam_handle_t * pamh, int ctrl, const char *remark)
 {
    int retval;
 
@@ -197,158 +183,165 @@ static int _pam_parse(int flags, int argc, const char **argv)
 
    D(("returning %s", pam_strerror(pamh, retval)));
    return retval;
-}*/
-
+}
 
 
 /* Do the actual work of creating a home dir */
-static int create_homedir(pam_handle_t * pamh, int ctrl,
-                          const struct passwd *pwd,
-                          const char *source, const char *dest)
-{
-   char remark[BUFSIZ];
-   DIR *D;
-   struct dirent *Dir;
+// static int create_homedir(pam_handle_t * pamh, int ctrl,
+//                           const struct passwd *pwd,
+//                           const char *source, const char *dest)
+// {
+//    char remark[BUFSIZ];
+//    DIR *D;
+//    struct dirent *Dir;
 
-   /* Mention what is happening, if the notification fails that is OK */
-   if (snprintf(remark,sizeof(remark),"Creating directory '%s'.", dest) == -1)
-      return PAM_PERM_DENIED;
+//    /* Mention what is happening, if the notification fails that is OK */
+//    if (snprintf(remark,sizeof(remark),"Creating directory '%s'.", dest) == -1)
+//       return PAM_PERM_DENIED;
 
-   //make_remark(pamh, ctrl, remark);
+//    make_remark(pamh, ctrl, remark);
 
-   /* Create the new directory */
-   if (mkdir(dest,0700) != 0)
-   {
-      _log_err(LOG_DEBUG, "unable to create directory %s",source);
-      return PAM_PERM_DENIED;
-   }   
-   if (chmod(dest,0777 & (~UMask)) != 0 ||
-       chown(dest,pwd->pw_uid,pwd->pw_gid) != 0)
-   {
-      _log_err(LOG_DEBUG, "unable to change perms on directory %s",dest);
-      return PAM_PERM_DENIED;
-   }
+//    /* Create the new directory */
+//    if (mkdir(dest,0700) != 0)
+//    {
+//       _log_err(LOG_DEBUG, "unable to create directory %s",source);
+//       return PAM_PERM_DENIED;
+//    }   
+//    if (chmod(dest,0777 & (~UMask)) != 0 ||
+//        chown(dest,pwd->pw_uid,pwd->pw_gid) != 0)
+//    {
+//       _log_err(LOG_DEBUG, "unable to change perms on directory %s",dest);
+//       return PAM_PERM_DENIED;
+//    }
 
-   /* See if we need to copy the skel dir over. */
-   if ((source == NULL) || (strlen(source) == 0))
-   {
-      return PAM_SUCCESS;
-   }
+//    /* See if we need to copy the skel dir over. */
+//    if ((source == NULL) || (strlen(source) == 0))
+//    {
+//       return PAM_SUCCESS;
+//    }
 
-   /* Scan the directory */
-   D = opendir(source);
-   if (D == 0)
-   {
-      _log_err(LOG_DEBUG, "unable to read directory %s",source);
-      return PAM_PERM_DENIED;
-   }
+//    /* Scan the directory */
+//    D = opendir(source);
+//    if (D == 0)
+//    {
+//       _log_err(LOG_DEBUG, "unable to read directory %s",source);
+//       return PAM_PERM_DENIED;
+//    }
 
-   for (Dir = readdir(D); Dir != 0; Dir = readdir(D))
-   {  
-      int SrcFd;
-      int DestFd;
-      int Res;
-      struct stat St;
-      char newsource[PATH_MAX], newdest[PATH_MAX];
+//    for (Dir = readdir(D); Dir != 0; Dir = readdir(D))
+//    {  
+//       int SrcFd;
+//       int DestFd;
+//       int Res;
+//       struct stat St;
+//       char newsource[PATH_MAX], newdest[PATH_MAX];
 
-      /* Skip some files.. */
-      if (strcmp(Dir->d_name,".") == 0 ||
-	  strcmp(Dir->d_name,"..") == 0)
-	 continue;
+//       /* Skip some files.. */
+//       if (strcmp(Dir->d_name,".") == 0 ||
+// 	  strcmp(Dir->d_name,"..") == 0)
+// 	 continue;
 
-      /* Determine what kind of file it is. */
-      snprintf(newsource,sizeof(newsource),"%s/%s",source,Dir->d_name);
-      if (lstat(newsource,&St) != 0)
-         continue;
+//       /* Determine what kind of file it is. */
+//       snprintf(newsource,sizeof(newsource),"%s/%s",source,Dir->d_name);
+//       if (lstat(newsource,&St) != 0)
+//          continue;
 
-      /* We'll need the new file's name. */
-      snprintf(newdest,sizeof(newdest),"%s/%s",dest,Dir->d_name);
+//       /* We'll need the new file's name. */
+//       snprintf(newdest,sizeof(newdest),"%s/%s",dest,Dir->d_name);
 
-      /* If it's a directory, recurse. */
-      if (S_ISDIR(St.st_mode))
-      {
-         create_homedir(pamh, ctrl, pwd, newsource, newdest);
-         continue;
-      }
+//       /* If it's a directory, recurse. */
+//       if (S_ISDIR(St.st_mode))
+//       {
+//          create_homedir(pamh, ctrl, pwd, newsource, newdest);
+//          continue;
+//       }
 
-      /* If it's a symlink, create a new link. */
-      if (S_ISLNK(St.st_mode))
-      {
-         char pointed[PATH_MAX];
-         memset(pointed, 0, sizeof(pointed));
-         if(readlink(newsource, pointed, sizeof(pointed) - 1) != -1)
-         {
-            if(symlink(pointed, newdest) == 0)
-            {
-               if (lchown(newdest,pwd->pw_uid,pwd->pw_gid) != 0)
-               {
-                   _log_err(LOG_DEBUG, "unable to chang perms on link %s",
-                            newdest);
-                   return PAM_PERM_DENIED;
-               }
-            }
-         }
-         continue;
-      }
+//       /* If it's a symlink, create a new link. */
+//       if (S_ISLNK(St.st_mode))
+//       {
+//          char pointed[PATH_MAX];
+//          memset(pointed, 0, sizeof(pointed));
+//          if(readlink(newsource, pointed, sizeof(pointed) - 1) != -1)
+//          {
+//             if(symlink(pointed, newdest) == 0)
+//             {
+//                if (lchown(newdest,pwd->pw_uid,pwd->pw_gid) != 0)
+//                {
+//                    _log_err(LOG_DEBUG, "unable to chang perms on link %s",
+//                             newdest);
+//                    return PAM_PERM_DENIED;
+//                }
+//             }
+//          }
+//          continue;
+//       }
 
-      /* If it's not a regular file, it's probably not a good idea to create
-       * the new device node, FIFO, or whatever it is. */
-      if (!S_ISREG(St.st_mode))
-      {
-         continue;
-      }
+//       /* If it's not a regular file, it's probably not a good idea to create
+//        * the new device node, FIFO, or whatever it is. */
+//       if (!S_ISREG(St.st_mode))
+//       {
+//          continue;
+//       }
 
-      /* Open the source file */
-      if ((SrcFd = open(newsource,O_RDONLY)) < 0 || fstat(SrcFd,&St) != 0)
-      {
-         _log_err(LOG_DEBUG, "unable to open src file %s",newsource);
-	 return PAM_PERM_DENIED;
-      }
-      stat(newsource,&St);
+//       /* Open the source file */
+//       if ((SrcFd = open(newsource,O_RDONLY)) < 0 || fstat(SrcFd,&St) != 0)
+//       {
+//          _log_err(LOG_DEBUG, "unable to open src file %s",newsource);
+// 	 return PAM_PERM_DENIED;
+//       }
+//       stat(newsource,&St);
 
-      /* Open the dest file */
-      if ((DestFd = open(newdest,O_WRONLY | O_TRUNC | O_CREAT,0600)) < 0)
-      {
-	 close(SrcFd);
-         _log_err(LOG_DEBUG, "unable to open dest file %s",newdest);
-	 return PAM_PERM_DENIED;
-      }
+//       /* Open the dest file */
+//       if ((DestFd = open(newdest,O_WRONLY | O_TRUNC | O_CREAT,0600)) < 0)
+//       {
+// 	 close(SrcFd);
+//          _log_err(LOG_DEBUG, "unable to open dest file %s",newdest);
+// 	 return PAM_PERM_DENIED;
+//       }
 
-      /* Set the proper ownership and permissions for the module. We make
-       	 the file a+w and then mask it with the set mask. This preseves
-       	 execute bits */
-      if (fchmod(DestFd,(St.st_mode | 0222) & (~UMask)) != 0 ||
-	  fchown(DestFd,pwd->pw_uid,pwd->pw_gid) != 0)
-      {
-         close(SrcFd);
-         close(DestFd);
-         _log_err(LOG_DEBUG, "unable to chang perms on copy %s",newdest);
-	 return PAM_PERM_DENIED;
-      }
+//       /* Set the proper ownership and permissions for the module. We make
+//        	 the file a+w and then mask it with the set mask. This preseves
+//        	 execute bits */
+//       if (fchmod(DestFd,(St.st_mode | 0222) & (~UMask)) != 0 ||
+// 	  fchown(DestFd,pwd->pw_uid,pwd->pw_gid) != 0)
+//       {
+//          close(SrcFd);
+//          close(DestFd);
+//          _log_err(LOG_DEBUG, "unable to chang perms on copy %s",newdest);
+// 	 return PAM_PERM_DENIED;
+//       }
 
-      /* Copy the file */
-      do
-      {
-         Res = read(SrcFd,remark,sizeof(remark));
-	 if (Res < 0 || write(DestFd,remark,Res) != Res)
-	 {
-	    close(SrcFd);
-	    close(DestFd);
-	    _log_err(LOG_DEBUG, "unable to perform IO");
-	    return PAM_PERM_DENIED;
-	 }
-      }
-      while (Res != 0);
-      close(SrcFd);
-      close(DestFd);
-   }
+//       /* Copy the file */
+//       do
+//       {
+//          Res = read(SrcFd,remark,sizeof(remark));
+// 	 if (Res < 0 || write(DestFd,remark,Res) != Res)
+// 	 {
+// 	    close(SrcFd);
+// 	    close(DestFd);
+// 	    _log_err(LOG_DEBUG, "unable to perform IO");
+// 	    return PAM_PERM_DENIED;
+// 	 }
+//       }
+//       while (Res != 0);
+//       close(SrcFd);
+//       close(DestFd);
+//    }
 
-   return PAM_SUCCESS;
-}
+//    return PAM_SUCCESS;
+// }
 
 static int create_polo_homedir(pam_handle_t * pamh, int ctrl,
                           const struct passwd *pwd,const char *dest)
 {
+	char remark[BUFSIZ];
+
+    /* Mention what is happening, if the notification fails that is OK */
+    if (snprintf(remark,sizeof(remark),"Creating directory '%s' on all nodes.", dest) == -1)
+       return PAM_PERM_DENIED;
+	
+	make_remark(pamh, ctrl, remark);
+	
 	int uid = pwd->pw_uid;
 	int gid = pwd->pw_gid;
 
@@ -395,7 +388,6 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
    //return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
 }
 
-/* Ignore */
 PAM_EXTERN 
 int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc
 			 ,const char **argv)
@@ -406,7 +398,7 @@ int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc
 #ifdef PAM_STATIC
 
 /* static module data */
-struct pam_module _pam_mkhomedir_modstruct =
+struct pam_module _pam_mkpolohomedir_modstruct =
 {
    "pam_mkpolohomedir",
    NULL,

@@ -187,28 +187,28 @@ CMakeFiles/marcobinding.dir/src/utf8.c.o.provides: CMakeFiles/marcobinding.dir/s
 
 CMakeFiles/marcobinding.dir/src/utf8.c.o.provides.build: CMakeFiles/marcobinding.dir/src/utf8.c.o
 
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o: CMakeFiles/marcobinding.dir/flags.make
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o: src/pam_polousers.cpp
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o: CMakeFiles/marcobinding.dir/flags.make
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o: src/pam_mkpolohomedir.c
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/martin/TFG/workspaces/polousers/cppbinding/CMakeFiles $(CMAKE_PROGRESS_7)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o -c /home/martin/TFG/workspaces/polousers/cppbinding/src/pam_polousers.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building C object CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o"
+	/usr/bin/cc  $(C_DEFINES) $(C_FLAGS) -o CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o   -c /home/martin/TFG/workspaces/polousers/cppbinding/src/pam_mkpolohomedir.c
 
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/martin/TFG/workspaces/polousers/cppbinding/src/pam_polousers.cpp > CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.i
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.i"
+	/usr/bin/cc  $(C_DEFINES) $(C_FLAGS) -E /home/martin/TFG/workspaces/polousers/cppbinding/src/pam_mkpolohomedir.c > CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.i
 
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/martin/TFG/workspaces/polousers/cppbinding/src/pam_polousers.cpp -o CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.s
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.s"
+	/usr/bin/cc  $(C_DEFINES) $(C_FLAGS) -S /home/martin/TFG/workspaces/polousers/cppbinding/src/pam_mkpolohomedir.c -o CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.s
 
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.requires:
-.PHONY : CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.requires
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.requires:
+.PHONY : CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.requires
 
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.provides: CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.requires
-	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.provides.build
-.PHONY : CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.provides
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.provides: CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.requires
+	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.provides.build
+.PHONY : CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.provides
 
-CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.provides.build: CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o
+CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.provides.build: CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o
 
 # Object files for target marcobinding
 marcobinding_OBJECTS = \
@@ -218,7 +218,7 @@ marcobinding_OBJECTS = \
 "CMakeFiles/marcobinding.dir/src/JSON.cpp.o" \
 "CMakeFiles/marcobinding.dir/src/JSONValue.cpp.o" \
 "CMakeFiles/marcobinding.dir/src/utf8.c.o" \
-"CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o"
+"CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o"
 
 # External object files for target marcobinding
 marcobinding_EXTERNAL_OBJECTS =
@@ -229,7 +229,7 @@ libmarcobinding.so: CMakeFiles/marcobinding.dir/src/marcoexception.cpp.o
 libmarcobinding.so: CMakeFiles/marcobinding.dir/src/JSON.cpp.o
 libmarcobinding.so: CMakeFiles/marcobinding.dir/src/JSONValue.cpp.o
 libmarcobinding.so: CMakeFiles/marcobinding.dir/src/utf8.c.o
-libmarcobinding.so: CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o
+libmarcobinding.so: CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o
 libmarcobinding.so: CMakeFiles/marcobinding.dir/build.make
 libmarcobinding.so: CMakeFiles/marcobinding.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX shared library libmarcobinding.so"
@@ -245,7 +245,7 @@ CMakeFiles/marcobinding.dir/requires: CMakeFiles/marcobinding.dir/src/marcoexcep
 CMakeFiles/marcobinding.dir/requires: CMakeFiles/marcobinding.dir/src/JSON.cpp.o.requires
 CMakeFiles/marcobinding.dir/requires: CMakeFiles/marcobinding.dir/src/JSONValue.cpp.o.requires
 CMakeFiles/marcobinding.dir/requires: CMakeFiles/marcobinding.dir/src/utf8.c.o.requires
-CMakeFiles/marcobinding.dir/requires: CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o.requires
+CMakeFiles/marcobinding.dir/requires: CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o.requires
 .PHONY : CMakeFiles/marcobinding.dir/requires
 
 CMakeFiles/marcobinding.dir/clean:

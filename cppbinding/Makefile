@@ -231,29 +231,29 @@ src/marcoexception.cpp.s:
 	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/marcoexception.cpp.s
 .PHONY : src/marcoexception.cpp.s
 
-src/pam_polousers.o: src/pam_polousers.cpp.o
-.PHONY : src/pam_polousers.o
+src/pam_mkpolohomedir.o: src/pam_mkpolohomedir.c.o
+.PHONY : src/pam_mkpolohomedir.o
 
 # target to build an object file
-src/pam_polousers.cpp.o:
-	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.o
-.PHONY : src/pam_polousers.cpp.o
+src/pam_mkpolohomedir.c.o:
+	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.o
+.PHONY : src/pam_mkpolohomedir.c.o
 
-src/pam_polousers.i: src/pam_polousers.cpp.i
-.PHONY : src/pam_polousers.i
+src/pam_mkpolohomedir.i: src/pam_mkpolohomedir.c.i
+.PHONY : src/pam_mkpolohomedir.i
 
 # target to preprocess a source file
-src/pam_polousers.cpp.i:
-	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.i
-.PHONY : src/pam_polousers.cpp.i
+src/pam_mkpolohomedir.c.i:
+	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.i
+.PHONY : src/pam_mkpolohomedir.c.i
 
-src/pam_polousers.s: src/pam_polousers.cpp.s
-.PHONY : src/pam_polousers.s
+src/pam_mkpolohomedir.s: src/pam_mkpolohomedir.c.s
+.PHONY : src/pam_mkpolohomedir.s
 
 # target to generate assembly for a file
-src/pam_polousers.cpp.s:
-	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_polousers.cpp.s
-.PHONY : src/pam_polousers.cpp.s
+src/pam_mkpolohomedir.c.s:
+	$(MAKE) -f CMakeFiles/marcobinding.dir/build.make CMakeFiles/marcobinding.dir/src/pam_mkpolohomedir.c.s
+.PHONY : src/pam_mkpolohomedir.c.s
 
 src/utf8.o: src/utf8.c.o
 .PHONY : src/utf8.o
@@ -303,9 +303,9 @@ help:
 	@echo "... src/marcoexception.o"
 	@echo "... src/marcoexception.i"
 	@echo "... src/marcoexception.s"
-	@echo "... src/pam_polousers.o"
-	@echo "... src/pam_polousers.i"
-	@echo "... src/pam_polousers.s"
+	@echo "... src/pam_mkpolohomedir.o"
+	@echo "... src/pam_mkpolohomedir.i"
+	@echo "... src/pam_mkpolohomedir.s"
 	@echo "... src/utf8.o"
 	@echo "... src/utf8.i"
 	@echo "... src/utf8.s"
