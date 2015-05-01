@@ -1,0 +1,179 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Structured General Purpose Assignment
+% LaTeX Template
+%
+% Original author:
+% Ted Pavlic (http://www.tedpavlic.com)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%   PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{article}
+
+\usepackage{fancyhdr} % Required for custom headers
+\usepackage{lastpage} % Required to determine the last page for the footer
+\usepackage{extramarks} % Required for headers and footers
+\usepackage{graphicx} % Required to insert images
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+
+\usepackage[T1]{fontenc} % Codificación de las fuentes utilizadas
+\usepackage[spanish]{babel} % Español como idioma principal del texto (permite hyphenation de palabras al final de una línea)
+\selectlanguage{spanish}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\input{includes}
+   
+%----------------------------------------------------------------------------------------
+%   NAME AND CLASS SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\hmwkTitle}{MKPolohomedir. Módulo de PAM para la gestión de usuarios} % Assignment title
+\newcommand{\hmwkDueDate}{Viernes,\ 1\ de\ mayo\ de\ 2015}
+\newcommand{\hmwkAuthorName}{Diego Martín Arroyo} % Your name
+
+%----------------------------------------------------------------------------------------
+%   TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{\hmwkTitle}
+\author{\textbf{\hmwkAuthorName}}
+\date{1 de mayo de 2015}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle
+
+%----------------------------------------------------------------------------------------
+%   TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+\setcounter{tocdepth}{1}
+
+\newpage
+\tableofcontents
+
+\section{Introducción}
+
+La gestión de los usuarios debe ser realizada de forma transparente. Permitiendo a los usuarios acceder al mismo en cualquier nodo y sin ningún tipo de configuración necesaria por su parte, acceder a todos los recursos presentes en el resto de nodos.
+
+El sistema delega parte de la gestión de los usuarios a un directorio \textbf{LDAP}, gestionando el acceso al sistema mediante el módulo \textbf{PAM}. Sin embargo, debido a las necesidades particulares del sistema, la configuración básica de \textbf{PAM} y las herramientas incluidas no son suficientes para conseguir el funcionamiento deseado, y por ello es necesario desarrollar un conjunto de herramientas propias.
+
+\section{Necesidades}
+
+El sistema se compone de una serie de nodos independientes a los cuales pueden acceder los usuarios indistintamente. Se desea que los usuarios puedan utilizar los recursos presentes en cualquier nodo sin tener que acceder directamente a ellos (mediante una sesión remota, por ejemplo), y puedan empezar a trabajar sin tener que realizar ningún tipo de configuración.
+
+Esta necesidad está parcialmente cubierta por los módulo de PAM \textbf{pam\_unix.so} (gestión de usuarios locales)\cite{man_pam_unix}, \textbf{pam\_ldap.so} (gestión de usuarios del servidor \textbf{LDAP})\cite{man_pam_ldap} y en particular \textbf{pam\_mkhomedir.so}\cite{man_pam_mkhomedir}, que permite la creación de un directorio de usuario si el mismo ha iniciado sesión por primera vez en esta máquina.
+
+Sin embargo, una de las características del sistema es la uniformidad de sus nodos en cuando a usuarios se refiere. Por ello, es deseable que los usuarios cuenten con un conjunto básico de datos en cualquier nodo del sistema a la hora de acceder por primera vez. El módulo \textbf{pam\_mkhomedir} no lleva a cabo esta tarea, pues únicamente crea el directorio (realizando una copia de \texttt{/etc/skel} de inicio del usuario en la máquina donde se ha realizado el acceso).
+
+Es por tanto necesario crear un mecanismo para llevar a cabo dicha tarea. Aprovechando la funcionalidad de PAM, se ha procedido a crear un módulo complementario a \textbf{pam\_mkhomedir} denominado \textbf{pam\_mkpolohomedir}, que aprovecha la herramienta \textbf{MarcoPolo} para realizar su cometido.
+
+\section{Características del módulo}
+
+La funcionalidad de un módulo de \textbf{PAM} se recoge en un objecto compartido que se vincula en tiempo de ejecución con el resto de componentes de \textbf{PAM} según se disponga en los ficheros de configuración del módulo (generalmente situados en \texttt{/etc/pam.d/}). \cite{linux-pam-guide} y que se debe almacenar en \texttt{/lib/security}.  
+
+En el caso particular a resolver, el módulo será invocado tras la ejecución del módulo \textbf{pam\_mkhomedir}, y se encargará de, aprovechando la funcionalidad de MarcoPolo, detectar todos los nodos disponibles en la red y proceder a la creación en los mismos del directorio de inicio, así como la realización de una serie de tareas adicionales.
+
+Toda la funcionalidad se recoge en el fichero \texttt{pam\_mkpolohomedir.c}. Dicho módulo recoge la información de interés (nombre, uid y gid del usuario) a través de llamadas al módulo \textbf{PAM}\cite{linux-pam-guide-ch2}.
+
+% \section{Introducción}
+
+% La infraestructura en la que se integra el sistema a construir cuenta con un sistema de usuarios centralizado en un servidor \textit{LDAP} (\textit{Lightweight Directory Access Protocol}), que posibilita el almacenamiento centralizado de la información de todos los usuarios de la infraestrucutra, y que, combinado con otros componentes, permite la utilización de una única cuenta en cualquiera de los equipos de la misma. Este sistema proporciona una serie de ventajas: delega la gestión de los usuarios al sistema central y evita la creación de nuevas cuentas para cada usuario, evitando el procesado de una cantidad de usuarios significativa.
+
+% Es por ello que el sistema contará con un cliente \textbf{LDAP} en cada uno de los nodos para poder acceder a la cuenta de cada usuario.
+
+% \section{LDAP}
+
+% El protocolo abierto \textbf{LDAP} se basa en una arquitectura cliente-servidor. En dicha arquitectura, el servidor gestiona un directorio de usuarios con una serie de datos de relevancia, tales como el par de claves usuario-contraseña, nombre completo, directorio de inicio, \textit{shell} por defecto, etcétera. La versión actual del protocolo (versión 3) se define en \cite{rfc4511} 
+
+% \subsection{Servidor a utilizar}
+
+% El servidor \textbf{LDAP} presente en la infraestructura utiliza una configuración estándar accesible desde la URI  \texttt{ldap://ldap1.cie.aulas.usal.es}. No utiliza autenticación por TLS \textit{Transport Layer Security} y opera en el puerto por defecto del protocolo, el 389.
+
+% \section{Configuración}
+
+% El proceso de configuración es sencillo, y se limita a la instalación de varios paquetes y la modificación de una serie de ficheros de configuración.\\
+
+% \texttt{pacman -S openldap nss-pam-ldapd}
+
+% Para confirmar que la instalación se ha realizado de forma correcta es posible realizar consultas al servidor desde la línea de comandos:\\
+
+% \texttt{ldapsearch -x -D uid=<id>,ou=people,dc=DIA -W -H ldap://ldap1.cie.aulas.usal.es:389 -b dc=dia -s sub uid=<id>}
+
+% Si al introducir la contraseña el comando retorna la información sobre el usuario, la autenticación se ha realizado de forma exitosa. En caso contrario se retornará un código de error.
+
+% La información que provee el directorio es la siguiente:\\
+
+% %\conffile{output}{Información sobre el servidor. Obsérvese el campo base, de relevancia para la configuración del cliente}{1}{10}
+
+% En primer lugar es necesario realizar la configuración del propio cliente LDAP para poder realizar consultas al mismo, que después serán aprovechadas por otros componentes. 
+
+% \conffile{ldap}{Archivo \texttt{/etc/openldap/ldap.conf}}{1}{10}
+
+% La configuración puede probarse con el siguiente comando:\\
+
+% \texttt{ldapsearch -x `(objectclass=*)'}
+
+% \subsection{Configuración del \textit{Name Service Switch}}
+
+% Un \textbf{NSS} define un conjunto de fuentes (archivos de configuración como \texttt{/etc/passwd}, servidores externos (\textit{LDAP})) para bases de datos de configuración. Para incluir el \textbf{LDAP} como fuente de datos únicamente es necesario modificar los ficheros de configuración del mismo:
+
+% \conffile{nsswitch}{Archivo \texttt{/etc/nsswitch.conf}}{1}{19}
+
+% En el archivo \texttt{nsswitch} se incluse información como fuentes de información los archivos del sistema (\texttt{passwd}, \texttt{gpasswd}\dots) y el protocolo \textbf{LDAP}
+
+% \conffile{nslcd}{Archivo \texttt{/etc/nslcd.conf}}{1}{1}
+
+% El archivo contiene la información de acceso al servidor \textbf{LDAP}.
+
+% Una vez modificados los archivos según lo indicado, es posible comenzar a utilizar el servidor \textbf{LDAP} como método de autenticación. Para ello es necesario únicamente iniciar el servicio \texttt{nslcd} utilizando \textbf{systemd}:\\
+
+% \texttt{systemctl start nslcd}
+
+% Para comprobar el correcto funcionamiento del sistema, es posible utilizar el comando \texttt{getent passwd}, que en caso que la configuración se haya aplicado correctamente, mostrará todos los usuarios presentes en el servidor \textbf{LDAP}.
+
+% \subsection{Configuración del módulo PAM}
+
+% El \textit{Pluggable Authentication Module} (\textbf{PAM}) es un módulo que permite realizar operaciones de autenticación y gestión de sesiones y contraseñas\cite{osfrfc86} utilizando un diseño modular y ``conectable'' (\textit{pluggable}), que permite su modificación y reemplazo de forma sencilla. En \textbf{Arch Linux} el paquete que lo incluye es \texttt{nss-pam-ldapd} \cite{nss-pam-ldap}.
+
+% En general, la configuración de \textbf{PAM} consiste en añadir a los archivos de configuración presentes una serie de directivas que realicen la consulta al fichero \textbf{LDAP}. Dichos ficheros se encuentran en la ruta \texttt{/etc/pam.d}
+
+% \pamfile{pam.d/su}{Fichero \texttt{pam.d/system-auth}}{1}{20}
+
+% \pamfile{pam.d/su-l}{Ficheros \texttt{pam.d/su} y \texttt{pam.d/su-l} (su contenido es idéntico en este paso)}{1}{20}
+
+% \pamfile{pam.d/passwd}{Fichero \texttt{pam.d/passwd}}{1}{10}
+
+% \subsection{Creación del directorio de inicio}
+
+% Debido a que el directorio de inicio no entra dentro del conjunto de directorios compartidos del sistema, es necesario crearlo en caso de que el usuario acceda por primera vez al sistema. 
+
+% \pamfile{pam.d/system-login}{Fichero \texttt{pam.d/system-login}}{1}{20}
+% \pamfile{pam.d/su-l}{Fichero \texttt{pam.d/su-l} (obsérvese la línea de diferencia con \texttt{pam.d/su})}{1}{20}
+
+% Sin embargo esto no es suficiente para proporcionar una experiencia de uso óptima, pues la configuración descrita anteriormente no crea el directorio en el resto de nodos del sistema, obligando al usuario a iniciar sesión en cada uno de ellos para contar con un directorio de trabajo propio. Para solucionar este problema es posible utilizar un servicio de \texttt{MarcoPolo}.
+
+% También es posible dar acceso al superusuario o permitir el acceso sin conexión al servidor, de nuevo mediante parámetros de configuración.
+
+% Una vez que toda la configuración ha sido probada es posible ejecutar el comando \texttt{systemctl enable nslcd} para arrancar el sistema de autenticación cada vez que el equipo arranque.
+
+% \nocite{ldapauthenticationarch}
+% \nocite{openldaparch}
+% \nocite{openldap}
+
+% %http://www.server-world.info/en/note?os=Debian_7.0&p=ldap&f=2
+% %https://wiki.debian.org/LDAP/PAM
+% %TODO: https://wiki.archlinux.org/index.php/LDAP_Hosts
+
+\label{Referencias}
+\lhead{\emph{Referencias}}
+\bibliographystyle{ieeetr}  % Use the "unsrtnat" BibTeX style for formatting the Bibliography
+\bibliography{polousers}  % The references (distcc) information are stored in the file named "distcc.bib"
+
+\end{document}
