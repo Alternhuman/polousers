@@ -14,7 +14,7 @@ extern "C"{
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
-
+#define BUFFSIZE 400
 
 extern "C" int testpolo(){
 	int sd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -33,14 +33,21 @@ extern "C" int testpolo(){
 	poloserver.sin_addr.s_addr = inet_addr("172.20.1.56");
 
 
-	/*rapidjson::Document writer;
+	rapidjson::Document writer;
 	rapidjson::Document::AllocatorType& allocator = writer.GetAllocator();
-	writer.SetObject();*/
+	writer.SetObject();
 		
-	/*rapidjson::Value Command(rapidjson::kStringType);
+	rapidjson::Value Command(rapidjson::kStringType);
 	Command.SetString("Create-Home");
 	writer.AddMember("Command", Command, allocator);
 
+	char aux[BUFFSIZE];
+	int uid = 999;
+	int gid = 999;
+	int len = sprintf(aux, "%s,%d,%d", "/home/i0825993", uid, gid);
+	char aux2[len];
+	strcpy(aux2, aux);
+	
 	rapidjson::Value Params(rapidjson::kStringType);
 	Params.SetString(aux2,len);
 	writer.AddMember("Params", Params, allocator);
@@ -49,20 +56,11 @@ extern "C" int testpolo(){
 	rapidjson::Writer<rapidjson::StringBuffer> salida(buffer);
 	writer.Accept(salida);
 
-	string data =  buffer.GetString();
+	std::string data =  buffer.GetString();
 	char data_arr[data.size()];
-	memcpy(data_arr, data.c_str(), data.size());*/
-
-
-	char data_arr[100];
-	strcpy(data_arr, "Hola");
+	memcpy(data_arr, data.c_str(), data.size());
 	sendto(sd,data_arr,sizeof(data_arr),0,(struct sockaddr *)&poloserver,size_addr);
  
 
  return 0;
 }
-
-
-/*int main(){
-	testpolo();
-}*/
