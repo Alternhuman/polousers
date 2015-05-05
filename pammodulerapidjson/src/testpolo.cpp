@@ -16,7 +16,7 @@ extern "C"{
 #include "rapidjson/prettywriter.h"
 #define BUFFSIZE 400
 
-extern "C" int testpolo(char* home, int uid, int gid){
+extern "C" int testpolo(const char* home, int uid, int gid){
 	int sd = socket(AF_INET, SOCK_DGRAM, 0);
 	struct sockaddr_in poloserver;
 	size_t size_addr = sizeof(poloserver);

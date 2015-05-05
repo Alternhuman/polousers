@@ -1,0 +1,20 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+PROJECT( POLOCPPBINDING )
+
+SET( POLOCPPBINDING_SRCS
+  ${CMAKE_SOURCE_DIR}/src/pam_mkpolohomedir.c
+  ${CMAKE_SOURCE_DIR}/src/testpolo.cpp
+#  ${CMAKE_SOURCE_DIR}/src/createdirs.cpp
+#  ${CMAKE_SOURCE_DIR}/src/marcobinding.cpp
+#  ${CMAKE_SOURCE_DIR}/src/marcoexception.cpp
+  )
+
+INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/include" )
+INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
+INCLUDE_DIRECTORIES( ${PAM_INCLUDE_DIR} )
+
+ADD_LIBRARY( pam_mkpolohomedir SHARED ${POLOCPPBINDING_SRCS})
+SET_TARGET_PROPERTIES( pam_mkpolohomedir PROPERTIES PREFIX "")
+TARGET_LINK_LIBRARIES( pam_mkpolohomedir ${PAM_LIBRARIES})
+find_package(RapidJSON)
