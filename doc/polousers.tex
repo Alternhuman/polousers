@@ -80,7 +80,8 @@ La funcionalidad de un módulo de \textbf{PAM} se recoge en un objecto compartid
 
 En el caso particular a resolver, el módulo será invocado tras la ejecución del módulo \textbf{pam\_mkhomedir}, y se encargará de, aprovechando la funcionalidad de MarcoPolo, detectar todos los nodos disponibles en la red y proceder a la creación en los mismos del directorio de inicio, así como la realización de una serie de tareas adicionales.
 
-Toda la funcionalidad se recoge en el fichero \texttt{pam\_mkpolohomedir.c}. Dicho módulo recoge la información de interés (nombre, uid y gid del usuario) a través de llamadas al núcleo de \textbf{PAM}\cite{linux-pam-guide-ch2}.
+Toda la funcionalidad se recoge en el fichero \texttt{pam\_mkpolohomedir.c}. Dicho módulo recoge la información de interés (nombre, uid y gid del usuario) a través de llamadas al núcleo de \textbf{PAM}\cite{linux-pam-guide-ch2}. La estructura del código se basa parcialmente en el del módulo \textbg{pam\_makehomedir}\cite{pam_makehomedir_code}, tomando varias funciones del mismo.
+
 
 \cfile{pam_mkpolohomedir}{Obtención de la información del usuario}{355}{372}
 
@@ -91,6 +92,7 @@ Una vez obtenida dicha información, las funciones \texttt{create\_polo\_homedir
 Cada nodo cuenta con una instancia del esclavo de \textbf{polousers}, el servicio que se encarga de recibir las peticiones de creación de usuarios. Dicho servicio se implementa sobre el \textit{framework} \textbf{Twisted}, y verifica la autoría de cada petición mediante sockets sobre TLS (\textit{Transport Layer Security}).
 
 Una vez creado el directorio, el servicio así lo indica al solicitante, que almacena el registro de dicha operación.
+
 
 \label{Referencias}
 \lhead{\emph{Referencias}}

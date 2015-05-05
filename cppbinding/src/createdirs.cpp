@@ -18,6 +18,7 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/prettywriter.h"
 
+#include <unistd.h>
 using namespace std;
 
 extern "C" int createdirs(const char* home, int uid, int gid){
@@ -29,7 +30,7 @@ extern "C" int createdirs(const char* home, int uid, int gid){
 
 	std::vector<string> nodes;
 	nodes.push_back("127.0.1.1");
-	std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
+	//std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
 
 	if (sd < 0){
 		perror("Internal error when opening connection to Marco");
@@ -76,5 +77,5 @@ extern "C" int createdirs(const char* home, int uid, int gid){
 }
 
 int main(){
-	return 0;
+	
 }
