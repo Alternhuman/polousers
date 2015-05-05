@@ -4,7 +4,7 @@ PROJECT( POLOCPPBINDING )
 
 SET( POLOCPPBINDING_SRCS
   ${CMAKE_SOURCE_DIR}/src/pam_mkpolohomedir.c
-  ${CMAKE_SOURCE_DIR}/src/testpolo.c
+  ${CMAKE_SOURCE_DIR}/src/testpolo.cpp
 #  ${CMAKE_SOURCE_DIR}/src/createdirs.cpp
 #  ${CMAKE_SOURCE_DIR}/src/marcobinding.cpp
 #  ${CMAKE_SOURCE_DIR}/src/marcoexception.cpp
