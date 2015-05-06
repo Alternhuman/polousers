@@ -28,7 +28,7 @@
 using namespace std;
 
 vector<string> request_for(wchar_t* service){
-
+    vector<string> return_hosts;
     int sd = socket(AF_INET, SOCK_DGRAM, 0);
     struct sockaddr_in bind_addr;
 
@@ -62,7 +62,8 @@ vector<string> request_for(wchar_t* service){
     
     size_t b = wchar_to_utf8(wcs, iconv_in_bytes, iconv_out, iconv_out_bytes, 0);
     if(b < 1){
-        perror("Internal error during UTF-8 conversion");
+        perror("Internal error during UTF-8 conversion in marcousers");
+        return return_hosts;
     }
     sendto(sd,iconv_out,(b/4)-1,0,(struct sockaddr *)&bind_addr,size_addr);
     
@@ -89,7 +90,7 @@ vector<string> request_for(wchar_t* service){
 
     assert(document.IsArray());
 
-    vector<string> return_hosts;
+    
 
     for(int i= 0; i<document.Size();i++){
         return_hosts.push_back(document[i]["Address"][0].GetString());

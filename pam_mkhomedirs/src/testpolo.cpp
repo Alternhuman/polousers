@@ -37,6 +37,8 @@ extern "C" int create_polo_directories(const char* home, int uid, int gid){
 		printf("%s\n", nodes[i].c_str());
 		testpolo(home, uid, gid, nodes[i].c_str());
 	}
+
+	return 0;
 }
 
 extern "C" int testpolo(const char* home, int uid, int gid, const char* address_host){
