@@ -6,10 +6,6 @@ from OpenSSL import SSL
 
 class Servlet(Protocol):
 	def dataReceived(self, data):
-		print(data)
-
-		self.transport.write(bytes(data.decode('utf-8').upper(), 'utf-8'))
-		return
 		data_dict = json.loads(data.decode('utf-8'))
 		params = data_dict["Params"].split(',',3)
 		if data_dict["Command"] == "Create-Home":
@@ -21,16 +17,16 @@ def verifyCallback(connection, x509, errnum, errdepth, ok):
 	if not ok:
 		print("Invalid certificate from subject ", x509.get_subject())
 		return False
-	else:
-		print("Certs are fine")
-		return True
+	#else:
+	#	print("Certs are fine")
+	#	return True
 
 if __name__ == "__main__":
 	factory = Factory()
 	factory.protocol = Servlet
 
 	myContextFactory = ssl.DefaultOpenSSLContextFactory(
-        '../../certs/server.key', '../../certs/server.crt'
+        '../../certs/server.key', '/opt/certs/server.crt'
         )
 
 	ctx = myContextFactory.getContext()
@@ -39,7 +35,7 @@ if __name__ == "__main__":
 	 	verifyCallback
 	 	)
 
-	ctx.load_verify_locations("../../certs/rootCA.pem")
+	ctx.load_verify_locations("/opt/certs/rootCA.pem")
 
 	reactor.listenSSL(1343, factory, myContextFactory)
 	reactor.run()
