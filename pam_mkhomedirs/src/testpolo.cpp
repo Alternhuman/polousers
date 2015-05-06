@@ -25,10 +25,21 @@ extern "C"{
 #include <openssl/x509_vfy.h>
 #include <openssl/evp.h>
 
+#include "marcobinding.h"
+
 #define BUFFSIZE 400
 
+extern "C" int create_polo_directories(const char* home, int uid, int gid){
+	std::vector<string> nodes = request_for(L"marcousers");
 
-extern "C" int testpolo(const char* home, int uid, int gid){
+	for (int i = 0; i < nodes.size(); i++)
+	{
+		printf("%s\n", nodes[i].c_str());
+		testpolo(home, uid, gid, nodes[i].c_str());
+	}
+}
+
+extern "C" int testpolo(const char* home, int uid, int gid, const char* address_host){
 
 
 	//char           dest_url[] = "https://localhost:1344";
@@ -118,7 +129,7 @@ extern "C" int testpolo(const char* home, int uid, int gid){
 
 	poloserver.sin_family = AF_INET;
 	poloserver.sin_port = htons(1343);
-	poloserver.sin_addr.s_addr = inet_addr("127.0.0.1");
+	poloserver.sin_addr.s_addr = inet_addr(address_host);
 
 	if(-1 == connect(sd, (sockaddr*)&poloserver, size_addr)){
 		perror("Fail");
@@ -169,8 +180,3 @@ extern "C" int testpolo(const char* home, int uid, int gid){
  	}
  return 0;
 }
-
-
-/*int main(){
-	testpolo("/homei0825993", 999, 9999);
-}*/

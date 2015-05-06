@@ -55,11 +55,9 @@
 #include <security/_pam_macros.h>
 
 /* argument parsing */
-#define MKHOMEDIR_DEBUG      020  /* keep quiet about things */
-#define MKHOMEDIR_QUIET      040  /* keep quiet about things */
+#define MKHOMEDIR_DEBUG      020	/* keep quiet about things */
+#define MKHOMEDIR_QUIET      040	/* keep quiet about things */
 
-//#include "createdirs.h"
-#include "testpolo.h"
 static unsigned int UMask = 0022;
 static char SkelDir[BUFSIZ] = "/etc/skel"; /* THIS MODULE IS NOT THREAD SAFE */
 
@@ -69,7 +67,7 @@ static void _log_err(int err, const char *format, ...)
     va_list args;
 
     va_start(args, format);
-    openlog("PAM-mkpolohomedir", LOG_CONS|LOG_PID, LOG_AUTH);
+    openlog("PAM-mkhomedir", LOG_CONS|LOG_PID, LOG_AUTH);
     vsyslog(err, format, args);
     va_end(args);
     closelog();
@@ -87,14 +85,14 @@ static int _pam_parse(int flags, int argc, const char **argv)
    for (; argc-- > 0; ++argv)
    {
       if (!strcmp(*argv, "silent")) {
-   ctrl |= MKHOMEDIR_QUIET;
+	 ctrl |= MKHOMEDIR_QUIET;
       } else if (!strncmp(*argv,"umask=",6)) {
-   UMask = strtol(*argv+6,0,0);
+	 UMask = strtol(*argv+6,0,0);
       } else if (!strncmp(*argv,"skel=",5)) {
-   strncpy(SkelDir,*argv+5,sizeof(SkelDir));
-   SkelDir[sizeof(SkelDir)-1] = '\0';
+	 strncpy(SkelDir,*argv+5,sizeof(SkelDir));
+	 SkelDir[sizeof(SkelDir)-1] = '\0';
       } else {
-   _log_err(LOG_ERR, "unknown option; %s", *argv);
+	 _log_err(LOG_ERR, "unknown option; %s", *argv);
       }
    }
 
@@ -106,8 +104,8 @@ static int _pam_parse(int flags, int argc, const char **argv)
    conversion function. Our only use is to ask the application to print 
    an informative message that we are creating a home directory */
 static int converse(pam_handle_t * pamh, int ctrl, int nargs
-        ,struct pam_message **message
-        ,struct pam_response **response)
+		    ,struct pam_message **message
+		    ,struct pam_response **response)
 {
    int retval;
    struct pam_conv *conv;
@@ -119,26 +117,26 @@ static int converse(pam_handle_t * pamh, int ctrl, int nargs
    {
 
       retval = conv->conv(nargs, (const struct pam_message **) message
-        ,response, conv->appdata_ptr);
+			  ,response, conv->appdata_ptr);
 
       D(("returned from application's conversation function"));
 
       if (retval != PAM_SUCCESS && (ctrl & MKHOMEDIR_DEBUG))
       {
-   _log_err(LOG_DEBUG, "conversation failure [%s]"
-      ,pam_strerror(pamh, retval));
+	 _log_err(LOG_DEBUG, "conversation failure [%s]"
+		  ,pam_strerror(pamh, retval));
       }
 
    }
    else
    {
       _log_err(LOG_ERR, "couldn't obtain coversation function [%s]"
-         ,pam_strerror(pamh, retval));
+	       ,pam_strerror(pamh, retval));
    }
 
    D(("ready to return from module conversation"));
 
-   return retval;   /* propagate error status */
+   return retval;		/* propagate error status */
 }
 
 /* Ask the application to display a short text string for us. */
@@ -160,7 +158,7 @@ static int make_remark(pam_handle_t * pamh, int ctrl, const char *remark)
       msg[0].msg = NULL;
       if (resp)
       {
-   _pam_drop_reply(resp, 1);
+	 _pam_drop_reply(resp, 1);
       }
    }
    else
@@ -183,12 +181,11 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
    struct dirent *Dir;
 
    /* Mention what is happening, if the notification fails that is OK */
-   if (snprintf(remark,sizeof(remark),"Creating polo directory '%s'.", dest) == -1)
+   if (snprintf(remark,sizeof(remark),"Creating directory '%s'.", dest) == -1)
       return PAM_PERM_DENIED;
 
    make_remark(pamh, ctrl, remark);
 
-   
    /* Create the new directory */
    if (mkdir(dest,0700) != 0)
    {
@@ -226,8 +223,8 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
 
       /* Skip some files.. */
       if (strcmp(Dir->d_name,".") == 0 ||
-    strcmp(Dir->d_name,"..") == 0)
-   continue;
+	  strcmp(Dir->d_name,"..") == 0)
+	 continue;
 
       /* Determine what kind of file it is. */
       snprintf(newsource,sizeof(newsource),"%s/%s",source,Dir->d_name);
@@ -275,53 +272,47 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
       if ((SrcFd = open(newsource,O_RDONLY)) < 0 || fstat(SrcFd,&St) != 0)
       {
          _log_err(LOG_DEBUG, "unable to open src file %s",newsource);
-   return PAM_PERM_DENIED;
+	 return PAM_PERM_DENIED;
       }
       stat(newsource,&St);
 
       /* Open the dest file */
       if ((DestFd = open(newdest,O_WRONLY | O_TRUNC | O_CREAT,0600)) < 0)
       {
-   close(SrcFd);
+	 close(SrcFd);
          _log_err(LOG_DEBUG, "unable to open dest file %s",newdest);
-   return PAM_PERM_DENIED;
+	 return PAM_PERM_DENIED;
       }
 
       /* Set the proper ownership and permissions for the module. We make
-         the file a+w and then mask it with the set mask. This preseves
-         execute bits */
+       	 the file a+w and then mask it with the set mask. This preseves
+       	 execute bits */
       if (fchmod(DestFd,(St.st_mode | 0222) & (~UMask)) != 0 ||
-    fchown(DestFd,pwd->pw_uid,pwd->pw_gid) != 0)
+	  fchown(DestFd,pwd->pw_uid,pwd->pw_gid) != 0)
       {
          close(SrcFd);
          close(DestFd);
          _log_err(LOG_DEBUG, "unable to chang perms on copy %s",newdest);
-   return PAM_PERM_DENIED;
+	 return PAM_PERM_DENIED;
       }
 
       /* Copy the file */
       do
       {
          Res = read(SrcFd,remark,sizeof(remark));
-   if (Res < 0 || write(DestFd,remark,Res) != Res)
-   {
-      close(SrcFd);
-      close(DestFd);
-      _log_err(LOG_DEBUG, "unable to perform IO");
-      return PAM_PERM_DENIED;
-   }
+	 if (Res < 0 || write(DestFd,remark,Res) != Res)
+	 {
+	    close(SrcFd);
+	    close(DestFd);
+	    _log_err(LOG_DEBUG, "unable to perform IO");
+	    return PAM_PERM_DENIED;
+	 }
       }
       while (Res != 0);
       close(SrcFd);
       close(DestFd);
    }
 
-   if (snprintf(remark,sizeof(remark),"Creating directory in the rest of the nodes... '%s'.", dest) == -1)
-      return PAM_PERM_DENIED;
-
-   make_remark(pamh, ctrl, remark);
-   //createdirs(dest, pwd->pw_uid,pwd->pw_gid);  //call the function here
-   create_polo_directories(dest, pwd->pw_uid, pwd->pw_gid);
    return PAM_SUCCESS;
 }
 
@@ -329,7 +320,7 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
 
 PAM_EXTERN
 int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
-      ,const char **argv)
+			,const char **argv)
 {
    int retval, ctrl;
    const char *user;
@@ -366,7 +357,7 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
 /* Ignore */
 PAM_EXTERN 
 int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc
-       ,const char **argv)
+			 ,const char **argv)
 {
    return PAM_SUCCESS;
 }
@@ -376,7 +367,7 @@ int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc
 /* static module data */
 struct pam_module _pam_mkhomedir_modstruct =
 {
-   "pam_mkpolohomedir",
+   "pam_mkhomedir",
    NULL,
    NULL,
    NULL,
