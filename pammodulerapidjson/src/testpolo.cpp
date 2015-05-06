@@ -129,19 +129,18 @@ extern "C" int testpolo(const char* home, int uid, int gid){
 	SSL_set_fd(ssl, sd);
 
 	 if ( SSL_connect(ssl) != 1 )
-	 	printf("Fail");
-    	//BIO_printf(outbio, "Error: Could not build a SSL session");
-  	//else
-    	//BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
+	 	BIO_printf(outbio, "Error: Could not build a SSL session");
+  	else
+    	BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
 
 
   	//fprintf(stderr, "%s\n", "Here");
-    SSL_write(ssl, "Hola\0", 5);
-  	char  buf[100];
-  	SSL_read(ssl, buf, sizeof(buf));
-  	printf("Data: %s\n", buf);
+    //SSL_write(ssl, "Hola\0", 5);
+  	//char  buf[100];
+  	//SSL_read(ssl, buf, sizeof(buf));
+  	//printf("Data: %s\n", buf);
 
-  	return 0;
+  	//return 0;
 
 	rapidjson::Document writer;
 	rapidjson::Document::AllocatorType& allocator = writer.GetAllocator();
@@ -169,9 +168,16 @@ extern "C" int testpolo(const char* home, int uid, int gid){
 	std::string data =  buffer.GetString();
 	char data_arr[data.size()];
 	memcpy(data_arr, data.c_str(), data.size());
-	sendto(sd,data_arr,sizeof(data_arr),0,(struct sockaddr *)&poloserver,size_addr);
- 
-
+	//sendto(sd,data_arr,sizeof(data_arr),0,(struct sockaddr *)&poloserver,size_addr);
+ 	SSL_write(ssl, data_arr, sizeof(data_arr));
+ 	char buf_recv[500];
+ 	len = SSL_read(ssl, buf_recv, sizeof(buf_recv));
+ 	
+ 	char aux3[len];
+ 	if (len > 0){
+ 		strncpy(aux3, buf_recv, len);
+ 		printf("%s\n", aux3);
+ 	}
  return 0;
 }
 
