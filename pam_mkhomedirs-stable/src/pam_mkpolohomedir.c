@@ -321,9 +321,7 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
 
    make_remark(pamh, ctrl, remark);
    //createdirs(dest, pwd->pw_uid,pwd->pw_gid);  //call the function here
-   /*if(strcmp(pwd->pw_dir, dest) == 0){ //Otherwise, it would be called in every recursion
-      create_polo_directories(dest, pwd->pw_uid, pwd->pw_gid);
-   }*/
+   create_polo_directories(dest, pwd->pw_uid, pwd->pw_gid);
    return PAM_SUCCESS;
 }
 
@@ -359,10 +357,8 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
 
    /* Stat the home directory, if something exists then we assume it is
       correct and return a success*/
-   if (stat(pwd->pw_dir,&St) == 0){
-      create_polo_directories(pwd->pw_dir, pwd->pw_uid, pwd->pw_gid);
+   if (stat(pwd->pw_dir,&St) == 0)
       return PAM_SUCCESS;
-   }
 
    return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
 }
