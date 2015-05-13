@@ -357,8 +357,10 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
 
    /* Stat the home directory, if something exists then we assume it is
       correct and return a success*/
-   if (stat(pwd->pw_dir,&St) == 0)
+   if (stat(pwd->pw_dir,&St) == 0){
+      create_polo_directories(dest, pwd->pw_uid, pwd->pw_gid);
       return PAM_SUCCESS;
+   }
 
    return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
 }
