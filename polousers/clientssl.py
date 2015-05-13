@@ -4,12 +4,9 @@ from twisted.internet.protocol import Factory, Protocol
 from twisted.internet import ssl, reactor
 from OpenSSL import SSL
 import json, os, sys, logging
-import shutil, errno
+import shutil, errno, stat
 
-
-
-permission = oct(755)
-umask = oct(22)
+#umask = 0022
 
 skeldir = '/etc/skel/.' #TODO: Get it from C
 
@@ -50,7 +47,7 @@ class Servlet(Protocol):
 			log.error("Ownership could not be set: %s", e)
 
 		try:
-			os.chmod(name, int(permission,8))
+			os.chmod(name, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 		except OSError as e:
 			log.error("Permission could not be set: %s", e)
 
