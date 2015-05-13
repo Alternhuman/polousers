@@ -58,6 +58,15 @@ class Cliente(DatagramProtocol):
 
 		return
 
+	def datagramReceived(self, data, address):
+		host, port = address
+		print("received %r from %s:%d" % (data, host, port))
+		data_dict = json.loads(data.decode('utf-8'))
+		params = data_dict["Params"].split(',',3)
+		if data_dict["Command"] == "Create-Home":
+			logging.info("Creating the directory %s for the user %d %d", params[0], int(params[1]), int(params[2]))
+			self.create_homedir(params[0], int(params[1]), int(params[2])) #print("I shall create the directory %s for %d %d" % (params[0], int(params[1]), int(params[2])))
+
 
 if __name__ == "__main__":
 

@@ -1,0 +1,17 @@
+[Unit]
+Description=User management tool with MarcoPolo
+After=polo.service
+Wants=polo.service
+
+[Service]
+
+ExecStart=/opt/polousers/clientssl.py &> /dev/null
+ExecStop=/opt/polousers/daemon/polousersstop.py &> /dev/null
+
+Type=simple
+User=root
+Group=root
+PIDFile=/var/run/marcopolo/polousersclient.pid
+
+[Install]
+WantedBy=multi-user.target
