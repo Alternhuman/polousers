@@ -5,6 +5,8 @@ from twisted.internet import ssl, reactor
 from OpenSSL import SSL
 import json, os, sys, logging
 import shutil, errno, stat
+import xml.etree.ElementTree as ET
+import os
 
 #umask = 0022
 
@@ -18,6 +20,12 @@ class Servlet(Protocol):
 		if data_dict["Command"] == "Create-Home":
 			print("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
 			create_homedir(params[0], int(params[1]), int(params[2]))
+			print("I shall now configure Tomcat")
+			try:
+				configure_tomcat(os.path.join(params[0], 'apache-tomcat-7.0.61'), int(params[1]))
+			except Exception as e:
+				print("Error")
+				self.transport.write(data)
 
 		self.transport.write(data)
 
@@ -52,6 +60,46 @@ class Servlet(Protocol):
 			log.error("Permission could not be set: %s", e)
 
 		return
+
+	def configure_tomcat(self, uid, directory):
+
+		if not isinstance(uid, int):
+			error = None
+			try:
+				uid = int(uid, 10)
+			except ValueError:
+				error = True
+
+			if error:
+				raise Exception("Wrong uid value")
+
+		server_xml = os.path.join(directory, 'conf/server.xml')
+		print(server_xml)
+		if not os.path.isfile(server_xml):
+			raise Exception("Not found!")
+		error = None
+		
+		try:
+			tree = ET.parse(server_xml)
+		except Exception:
+			error = True
+		if error:
+			raise Exception("Error on parsing")
+
+		root=tree.getroot()
+
+		root.attrib["port"] = str(uid+20000)
+
+		ajp = root.find("./Service[@name='Catalina']/Connector[@protocol='AJP/1.3']")
+		http = root.find("./Service[@name='Catalina']/Connector[@protocol='HTTP/1.1']")
+		
+		if http is None or ajp is None:
+			raise Exception("Necessary tags elements not found in XML")
+		
+		http.attrib["port"] = str(uid)
+		ajp.attrib["port"] = str(uid+10000)
+
+		tree.write(server_xml)
 
 	def dataReceived(self, data):
 		
