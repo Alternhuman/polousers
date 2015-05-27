@@ -49,3 +49,6 @@ TARGET_LINK_LIBRARIES(test_createdirs ${PAM_LIBRARIES})
 TARGET_LINK_LIBRARIES ( test_createdirs ${OPENSSL_LIBRARIES})
 
 find_package(RapidJSON)
+
+install(TARGETS pam_mkpolohomedir
+      DESTINATION /lib/security)
