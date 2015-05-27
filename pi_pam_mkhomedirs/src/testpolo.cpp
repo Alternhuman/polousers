@@ -34,7 +34,7 @@ extern "C" int create_polo_directories(const char* home, int uid, int gid){
 
 	for (int i = 0; i < nodes.size(); i++)
 	{
-		//printf("%s\n", nodes[i].c_str());
+		printf("%s\n", nodes[i].c_str());
 		testpolo(home, uid, gid, nodes[i].c_str());
 	}
 }
@@ -62,7 +62,7 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
   outbio  = BIO_new_fp(stdout, BIO_NOCLOSE);
 
   if(SSL_library_init() < 0)
-    return -1;//BIO_printf(outbio, "Could not initialize the OpenSSL library !\n");
+    BIO_printf(outbio, "Could not initialize the OpenSSL library !\n");
 
   /* ---------------------------------------------------------- *
    * Set SSLv2 client hello, also announce SSLv3 and TLSv1      *
@@ -74,7 +74,7 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
    * Try to create a new SSL context                            *
    * ---------------------------------------------------------- */
   if ( (ctx = SSL_CTX_new(method)) == NULL)
-    return -1;//BIO_printf(outbio, "Unable to create a new SSL context structure.\n");
+    BIO_printf(outbio, "Unable to create a new SSL context structure.\n");
 
   /* ---------------------------------------------------------- *
    * Disabling SSLv2 will leave v3 and TSLv1 for negotiation    *
@@ -82,27 +82,27 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
  // SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2);
    if (!SSL_CTX_load_verify_locations(ctx, "/opt/certs/rootCA.pem", NULL))
     {
-       // ERR_print_errors_fp(stderr);
+        ERR_print_errors_fp(stderr);
        abort();
     }
 
   /* set the local certificate from CertFile */
    if ( SSL_CTX_use_certificate_file(ctx, "/opt/certs/client.crt", SSL_FILETYPE_PEM) <= 0 )
     {
-        //ERR_print_errors_fp(stderr);
+        ERR_print_errors_fp(stderr);
         
         abort();
     }
     /* set the private key from KeyFile (may be the same as CertFile) */
     if ( SSL_CTX_use_PrivateKey_file(ctx, "/opt/certs/client.key", SSL_FILETYPE_PEM) <= 0 )
     {
-        //ERR_print_errors_fp(stderr);
+        ERR_print_errors_fp(stderr);
         abort();
     }
     /* verify private key */
     if ( !SSL_CTX_check_private_key(ctx) )
     {
-        //fprintf(stderr, "Private key does not match the public certificate\n");
+        fprintf(stderr, "Private key does not match the public certificate\n");
         abort();
     }
 	SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
@@ -139,10 +139,9 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
 	SSL_set_fd(ssl, sd);
 
 	 if ( SSL_connect(ssl) != 1 )
-	 	//BIO_printf(outbio, "Error: Could not build a SSL session");
-	 	return -1;
-  	//else
-    //	BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
+	 	BIO_printf(outbio, "Error: Could not build a SSL session");
+  	else
+    	BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
 
 	rapidjson::Document writer;
 	rapidjson::Document::AllocatorType& allocator = writer.GetAllocator();
@@ -177,7 +176,7 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
  	char aux3[len];
  	if (len > 0){
  		strncpy(aux3, buf_recv, len);
- 		//printf("%s\n", aux3);
+ 		printf("%s\n", aux3);
  	}
  return 0;
 }

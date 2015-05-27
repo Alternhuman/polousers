@@ -27,15 +27,13 @@ extern "C" int createdirs(const char* home, int uid, int gid){
 	struct sockaddr_in poloserver;
 	size_t size_addr = sizeof(poloserver);
 	
-
-	std::vector<string> nodes;
-	nodes.push_back("172.20.1.56");
-	//std::vector<string> nodes = request_for(L"deployer"); //TODO: change to "polousers"
-
 	if (sd < 0){
-		perror("Internal error when opening connection to Marco");
+		perror("Internal error when creating socket");
 		return -1;
 	}
+
+	std::vector<string> nodes;
+	nodes = request_for(L"polousers");
 
 	for(int i=0; i<nodes.size();i++){
 		bzero((char *) &poloserver, sizeof(poloserver));

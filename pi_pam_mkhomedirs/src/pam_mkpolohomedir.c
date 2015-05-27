@@ -4,6 +4,9 @@
    when the session begins. This allows users to be present in central
    database (such as nis, kerb or ldap) without using a distributed
    file system or pre-creating a large number of directories.
+
+   The module creates the home directory in all nodes of the system,
+   thus ensuring that the system will be fully functional for the user.
    
    Here is a sample /etc/pam.d/login file for Debian GNU/Linux
    2.1:
@@ -22,12 +25,12 @@
    password   required   pam_pwdb.so   
    
    Released under the GNU LGPL version 2 or later
-   Originally written by Jason Gunthorpe <jgg@debian.org> Feb 1999
+   Based on the pam_mkhomedir module originally written by 
+   Jason Gunthorpe <jgg@debian.org> Feb 1999
    Structure taken from pam_lastlogin by Andrew Morgan 
      <morgan@parc.power.net> 1996
  */
 
-/* I want snprintf dammit */
 #define _GNU_SOURCE 1
 #include <stdarg.h>
 #include <sys/types.h>
@@ -55,8 +58,8 @@
 #include <security/_pam_macros.h>
 
 /* argument parsing */
-#define MKHOMEDIR_DEBUG      020  /* keep quiet about things */
-#define MKHOMEDIR_QUIET      040  /* keep quiet about things */
+#define MKPOLOHOMEDIR_DEBUG      020  /* keep quiet about things */
+#define MKPOLOHOMEDIR_QUIET      040  /* keep quiet about things */
 
 //#include "createdirs.h"
 #include "testpolo.h"
@@ -81,20 +84,20 @@ static int _pam_parse(int flags, int argc, const char **argv)
 
    /* does the appliction require quiet? */
    if ((flags & PAM_SILENT) == PAM_SILENT)
-      ctrl |= MKHOMEDIR_QUIET;
+      ctrl |= MKPOLOHOMEDIR_QUIET;
 
    /* step through arguments */
    for (; argc-- > 0; ++argv)
    {
       if (!strcmp(*argv, "silent")) {
-   ctrl |= MKHOMEDIR_QUIET;
+         ctrl |= MKPOLOHOMEDIR_QUIET;
       } else if (!strncmp(*argv,"umask=",6)) {
-   UMask = strtol(*argv+6,0,0);
+         UMask = strtol(*argv+6,0,0);
       } else if (!strncmp(*argv,"skel=",5)) {
-   strncpy(SkelDir,*argv+5,sizeof(SkelDir));
-   SkelDir[sizeof(SkelDir)-1] = '\0';
+         strncpy(SkelDir,*argv+5,sizeof(SkelDir));
+         SkelDir[sizeof(SkelDir)-1] = '\0';
       } else {
-   _log_err(LOG_ERR, "unknown option; %s", *argv);
+         _log_err(LOG_ERR, "unknown option; %s", *argv);
       }
    }
 
@@ -123,7 +126,7 @@ static int converse(pam_handle_t * pamh, int ctrl, int nargs
 
       D(("returned from application's conversation function"));
 
-      if (retval != PAM_SUCCESS && (ctrl & MKHOMEDIR_DEBUG))
+      if (retval != PAM_SUCCESS && (ctrl & MKPOLOHOMEDIR_DEBUG))
       {
    _log_err(LOG_DEBUG, "conversation failure [%s]"
       ,pam_strerror(pamh, retval));
@@ -146,7 +149,7 @@ static int make_remark(pam_handle_t * pamh, int ctrl, const char *remark)
 {
    int retval;
 
-   if ((ctrl & MKHOMEDIR_QUIET) != MKHOMEDIR_QUIET)
+   if ((ctrl & MKPOLOHOMEDIR_QUIET) != MKPOLOHOMEDIR_QUIET)
    {
       struct pam_message msg[1], *mesg[1];
       struct pam_response *resp = NULL;
@@ -321,9 +324,7 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
 
    make_remark(pamh, ctrl, remark);
    //createdirs(dest, pwd->pw_uid,pwd->pw_gid);  //call the function here
-   /*if(strcmp(pwd->pw_dir, dest) == 0){ //Otherwise, it would be called in every recursion
-      create_polo_directories(dest, pwd->pw_uid, pwd->pw_gid);
-   }*/
+   
    return PAM_SUCCESS;
 }
 
@@ -358,11 +359,13 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
    }
 
    /* Stat the home directory, if something exists then we assume it is
-      correct and return a success*/
-   if (stat(pwd->pw_dir,&St) == 0){
-      create_polo_directories(pwd->pw_dir, pwd->pw_uid, pwd->pw_gid);
+      correct and return a success before asking the rest of the nodes
+      to clone the directory*/
+
+   create_polo_directories(pwd->pw_dir, pwd->pw_uid, pwd->pw_gid);
+
+   if (stat(pwd->pw_dir,&St) == 0)
       return PAM_SUCCESS;
-   }
 
    return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
 }

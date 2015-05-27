@@ -36,7 +36,6 @@ vector<string> request_for(wchar_t* service){
 
     if (sd < 0){
         perror("Internal error when opening connection to Marco");
-        //throw marcoexception("Internal error when opening connection to Marco");
     }
 
 

@@ -1,3 +1,4 @@
+#!/bin/bash
 pacman -S openldap nss-pam-ldapd
 
 echo "Performing some tests. Please enter username to try to authenticate with the server"

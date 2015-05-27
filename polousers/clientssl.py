@@ -19,15 +19,17 @@ class Servlet(Protocol):
 		params = data_dict["Params"].split(',',3)
 		if data_dict["Command"] == "Create-Home":
 			print("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
-			create_homedir(params[0], int(params[1]), int(params[2]))
-			print("I shall now configure Tomcat")
-			try:
-				configure_tomcat(os.path.join(params[0], 'apache-tomcat-7.0.61'), int(params[1]))
-			except Exception as e:
-				print("Error")
-				self.transport.write(data)
-
-		self.transport.write(data)
+			print("Creating")
+			self.create_homedir(params[0], int(params[1]), int(params[2]))
+			print(os.path.join(params[0], 'apache-tomcat-7.0.62'))
+			if os.path.exists(os.path.join(params[0], 'apache-tomcat-7.0.62')):
+				print("I shall now configure Tomcat")
+				try:
+					self.configure_tomcat(os.path.join(params[0], 'apache-tomcat-7.0.62'), int(params[1]))
+				except Exception as e:
+					self.transport.write(json.dumps({"Error":str(e)}).encode('utf-8'))
+		print("Created")
+		self.transport.write(json.dumps({"OK":0}).encode('utf-8'))
 
 	def create_homedir(self, name, uid, gid):
 		
@@ -61,7 +63,7 @@ class Servlet(Protocol):
 
 		return
 
-	def configure_tomcat(self, uid, directory):
+	def configure_tomcat(self, directory, uid):
 
 		if not isinstance(uid, int):
 			error = None
@@ -101,15 +103,15 @@ class Servlet(Protocol):
 
 		tree.write(server_xml)
 
-	def dataReceived(self, data):
+	# def dataReceived2(self, data):
 		
-		data_dict = json.loads(data.decode('utf-8'))
-		params = data_dict["Params"].split(',',3)
-		if data_dict["Command"] == "Create-Home":
-			print("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
-			self.create_homedir(params[0], int(params[1]), int(params[2]))
+	# 	data_dict = json.loads(data.decode('utf-8'))
+	# 	params = data_dict["Params"].split(',',3)
+	# 	if data_dict["Command"] == "Create-Home":
+	# 		print("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
+	# 		self.create_homedir(params[0], int(params[1]), int(params[2]))
 
-		self.transport.write(data)
+	# 	self.transport.write(data)
 
 
 def verifyCallback(connection, x509, errnum, errdepth, ok):
@@ -131,7 +133,7 @@ if __name__ == "__main__":
 
 	ctx.set_verify(SSL.VERIFY_PEER | SSL.VERIFY_FAIL_IF_NO_PEER_CERT,
 	 	verifyCallback
-	 	)
+	)
 
 	ctx.load_verify_locations("/opt/certs/rootCA.pem")
 
