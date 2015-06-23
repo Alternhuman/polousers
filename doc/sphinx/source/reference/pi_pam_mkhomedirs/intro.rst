@@ -6,4 +6,5 @@ pi_pam_mkhomedirs reference
 
     pam_mkpolohomedir
     createdirs
+    conf
     
