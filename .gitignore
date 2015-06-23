@@ -44,3 +44,8 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
+doc/sphinx/build/
+doc/doxygen/html/
+doc/doxygen/latex
+doc/doxygen/xmk
+doc/doxygen/xml
