@@ -1,4 +1,5 @@
-/*
+/*!
+\file JSON.h
  * File JSON.h part of the SimpleJSON Library - http://mjpa.in/json
  *
  * Copyright (C) 2010 Mike Anchor

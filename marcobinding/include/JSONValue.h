@@ -1,4 +1,5 @@
-/*
+/*!
+\file JSONValue.h
  * File JSONValue.h part of the SimpleJSON Library - http://mjpa.in/json
  *
  * Copyright (C) 2010 Mike Anchor

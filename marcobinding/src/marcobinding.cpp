@@ -27,6 +27,9 @@
 #define UTF8_SEQUENCE_MAXLEN 8
 using namespace std;
 
+/*!
+    Performs the request_for operation
+*/
 vector<string> request_for(wchar_t* service){
 
 	int sd = socket(AF_INET, SOCK_DGRAM, 0);
