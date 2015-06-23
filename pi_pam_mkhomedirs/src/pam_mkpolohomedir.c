@@ -1,4 +1,6 @@
-/* PAM Make Home Dir module
+/*!
+\file pam_mkpolohomedir.c
+ PAM Make Home Dir module
 
    This module will create a users home directory if it does not exist
    when the session begins. This allows users to be present in central
@@ -66,7 +68,12 @@
 static unsigned int UMask = 0022;
 static char SkelDir[BUFSIZ] = "/etc/skel"; /* THIS MODULE IS NOT THREAD SAFE */
 
-/* some syslogging */
+/*!
+ Sends a message to the syslog
+ \param err Message priority
+ \param format The formatting string for the message
+ \param ... values for the formatting string
+*/
 static void _log_err(int err, const char *format, ...)
 {
     va_list args;
@@ -78,6 +85,13 @@ static void _log_err(int err, const char *format, ...)
     closelog();
 }
 
+/*!
+  Parses the arguments
+  \param flags Behaviour modifiers
+  \param argc The number of arguments
+  \param argv The arguments
+  \return A bitwise-modified integer with all the flags
+*/
 static int _pam_parse(int flags, int argc, const char **argv)
 {
    int ctrl = 0;
@@ -105,9 +119,16 @@ static int _pam_parse(int flags, int argc, const char **argv)
    return ctrl;
 }
 
-/* This common function is used to send a message to the applications 
-   conversion function. Our only use is to ask the application to print 
-   an informative message that we are creating a home directory */
+/*!
+  This common function is used to send a message to the applications 
+  conversion function. Our only use is to ask the application to print 
+  an informative message that we are creating a home directory 
+  \param pamh Information about the user
+  \param ctrl Controlling flags
+  \param nargs The number of arguments in message
+  \param message An array of messages
+  \param response The responses to those messages
+*/
 static int converse(pam_handle_t * pamh, int ctrl, int nargs
         ,struct pam_message **message
         ,struct pam_response **response)
@@ -144,7 +165,13 @@ static int converse(pam_handle_t * pamh, int ctrl, int nargs
    return retval;   /* propagate error status */
 }
 
-/* Ask the application to display a short text string for us. */
+/*!
+ Ask the application to display a short text string for us.
+ \param pamh Information about the user
+ \param ctrl Controlling flags
+ \param remark The message
+ \return An status of the operation. 
+*/
 static int make_remark(pam_handle_t * pamh, int ctrl, const char *remark)
 {
    int retval;
@@ -177,6 +204,13 @@ static int make_remark(pam_handle_t * pamh, int ctrl, const char *remark)
 }
 
 /* Do the actual work of creating a home dir */
+/*!
+  Creates the home directory, using MarcoPolo in the rest of the nodes
+  \param pamh The information about the PAM session
+  \param ctrl Controlling flags
+  \param pwd The information about the user
+  \param dest The home directory to create
+*/
 static int create_homedir(pam_handle_t * pamh, int ctrl,
                           const struct passwd *pwd,
                           const char *source, const char *dest)
@@ -330,9 +364,16 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
 
 /* --- authentication management functions (only) --- */
 
+/*!
+  Opens a PAM session. This is the entry point to the module
+  \param pamh The PAM session information given by PAM
+  \param flags Several control flags
+  \param argc The number of arguments passed to the module in the configuration files
+  \param argv The arguments passed to the module
+  \return A status code
+*/
 PAM_EXTERN
-int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
-      ,const char **argv)
+int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc, const char **argv)
 {
    int retval, ctrl;
    const char *user;
@@ -371,9 +412,15 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc
 }
 
 /* Ignore */
+/*!
+  Closes the session. This is the exit point
+  \param pamh The PAM session information
+  \param flags Some control flags
+  \param argc The number of arguments passed
+  \param argv The arguments
+*/
 PAM_EXTERN 
-int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc
-       ,const char **argv)
+int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc ,const char **argv)
 {
    return PAM_SUCCESS;
 }

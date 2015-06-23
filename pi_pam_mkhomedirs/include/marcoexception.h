@@ -1,3 +1,7 @@
+/*!
+	\file marcoexception.h
+*/
+
 #ifndef MARCO_EX
 #define MARCO_EX
 
