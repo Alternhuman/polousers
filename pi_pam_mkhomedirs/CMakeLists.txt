@@ -3,25 +3,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( PAM_MKHOMEDIRS )
 
 SET( POLOCPPBINDING_SRCS
-  ${CMAKE_SOURCE_DIR}/src/JSON.cpp
-  ${CMAKE_SOURCE_DIR}/src/JSONValue.cpp
-  ${CMAKE_SOURCE_DIR}/src/utf8.c
   ${CMAKE_SOURCE_DIR}/src/pam_mkpolohomedir.c
-  ${CMAKE_SOURCE_DIR}/src/testpolo.cpp
-#  ${CMAKE_SOURCE_DIR}/src/createdirs.cpp
-  ${CMAKE_SOURCE_DIR}/src/marcobinding.cpp
-  ${CMAKE_SOURCE_DIR}/src/marcoexception.cpp
+  ${CMAKE_SOURCE_DIR}/src/createpolodir.cpp
   )
 
 SET( TEST_SRCS
-  ${CMAKE_SOURCE_DIR}/src/JSON.cpp
-  ${CMAKE_SOURCE_DIR}/src/JSONValue.cpp
-	${CMAKE_SOURCE_DIR}/src/testpolo.cpp
-  ${CMAKE_SOURCE_DIR}/src/utf8.c
+	${CMAKE_SOURCE_DIR}/src/createpolodir.cpp
 	${CMAKE_SOURCE_DIR}/src/test.cpp
-	${CMAKE_SOURCE_DIR}/src/marcobinding.cpp
-  ${CMAKE_SOURCE_DIR}/src/marcoexception.cpp
 )
+
+FIND_PACKAGE(MarcoCPPBinding)
 
 INCLUDE_DIRECTORIES( "${CMAKE_SOURCE_DIR}/include" )
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
@@ -46,12 +37,18 @@ ADD_LIBRARY( pam_mkpolohomedir SHARED ${POLOCPPBINDING_SRCS})
 SET_TARGET_PROPERTIES( pam_mkpolohomedir PROPERTIES PREFIX "")
 TARGET_LINK_LIBRARIES( pam_mkpolohomedir ${PAM_LIBRARIES})
 TARGET_LINK_LIBRARIES( pam_mkpolohomedir ${OPENSSL_LIBRARIES})
+TARGET_LINK_LIBRARIES( pam_mkpolohomedir ${MARCOCPPBINDING_LIBRARY})
 
 ADD_EXECUTABLE ( test_createdirs ${TEST_SRCS})
 TARGET_LINK_LIBRARIES(test_createdirs ${PAM_LIBRARIES})
 TARGET_LINK_LIBRARIES ( test_createdirs ${OPENSSL_LIBRARIES})
+TARGET_LINK_LIBRARIES(test_createdirs ${MARCOCPPBINDING_LIBRARY})
 
 find_package(RapidJSON)
 
 install(TARGETS pam_mkpolohomedir
       DESTINATION /lib/security)
+
+
+
+

@@ -63,8 +63,7 @@
 #define MKPOLOHOMEDIR_DEBUG      020  /* keep quiet about things */
 #define MKPOLOHOMEDIR_QUIET      040  /* keep quiet about things */
 
-//#include "createdirs.h"
-#include "testpolo.h"
+#include "createpolodir.h"
 static unsigned int UMask = 0022;
 static char SkelDir[BUFSIZ] = "/etc/skel"; /* THIS MODULE IS NOT THREAD SAFE */
 
