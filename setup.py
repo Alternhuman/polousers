@@ -19,7 +19,7 @@ custom_polouser_params = [
                           "--polousers-no-start"
                          ]
 
-init_bin = detect_init()
+
 
 def detect_init():
     try:
@@ -28,6 +28,7 @@ def detect_init():
     except (subprocess.CalledProcessError, OSError):
         return 1
 
+init_bin = detect_init()
 
 def enable_service(service):
     sys.stdout.write("Enabling service " + service +"...")
@@ -52,6 +53,8 @@ def set_cert_permissions():
     for cert in os.listdir("/etc/polohomedir/certs"):
         chmod(os.path.join("/etc/polohomedir/certs", cert), stat.S_IREAD | stat.S_IWRITE)
 
+    chmod("/etc/polohomedir/certs", stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)
+
 if __name__ == "__main__":
 
     polousers_params = []
@@ -66,8 +69,9 @@ if __name__ == "__main__":
     with open(os.path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
         long_description = f.read()
 
-    data_files = [
-                    ('/etc/polohomedir/certs', [glob.glob("certs/*")]),
+    data_files =[]
+    cert_files =  [
+                    ('/etc/polohomedir/certs', [glob.glob("etc/polohomedir/certs/*")]),
                  ]
 
     if "--polousers-disable-daemons" not in polousers_params:
@@ -87,7 +91,7 @@ if __name__ == "__main__":
             data_files.extend(twistd_files)
 
     data_files.extend(daemon_files)
-
+    data_files.extend(cert_files)
 
     setup(
         name="polousers",
@@ -116,7 +120,9 @@ if __name__ == "__main__":
         packages=find_packages(),
         install_requires=[
             'Twisted==15.1.0',
-            'zope.interface==4.1.2]'
+            'zope.interface==4.1.2',
+            'marcopolo',
+            'marcopolobindings'
             ],
         zip_safe=False,
         data_files=data_files,
@@ -134,6 +140,5 @@ if __name__ == "__main__":
         if "--polousers-no-start" not in polousers_params:
             start_service("polousersd")
     
-
     if not os.path.exists("/var/log/marcopolo"):
         os.makedirs('/var/log/marcopolo')

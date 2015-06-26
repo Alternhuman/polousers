@@ -28,13 +28,16 @@ extern "C"{
 #include <marcopolo/marco.hpp>
 
 #define BUFFSIZE 400
+#define ROOTCA "/etc/polohomedir/certs/rootCA.pem"
+#define CLIENT_CRT "/etc/polohomedir/certs/client.crt"
+#define CLIENT_KEY "/etc/polohomedir/certs/client.key"
 
 extern "C" int testpolo(const char* home, int uid, int gid, const char* address_host){
 
-    BIO              *certbio = NULL;
+    //BIO              *certbio = NULL;
     BIO               *outbio = NULL;
-    X509                *cert = NULL;
-    X509_NAME       *certname = NULL;
+    //X509                *cert = NULL;
+    //X509_NAME       *certname = NULL;
     const SSL_METHOD *method;
     SSL_CTX *ctx;
     SSL *ssl;
@@ -44,7 +47,7 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
     ERR_load_crypto_strings();
     SSL_load_error_strings();
 
-    certbio = BIO_new(BIO_s_file());
+    //certbio = BIO_new(BIO_s_file());
     outbio  = BIO_new_fp(stdout, BIO_NOCLOSE);
 
     if(SSL_library_init() < 0)
@@ -55,7 +58,6 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
     * ---------------------------------------------------------- */
     method = SSLv23_client_method();
 
-    
     /* ---------------------------------------------------------- *
     * Try to create a new SSL context                            *
     * ---------------------------------------------------------- */
@@ -66,21 +68,21 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
     * Disabling SSLv2 will leave v3 and TSLv1 for negotiation    *
     * ---------------------------------------------------------- */
     // SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2);
-    if (!SSL_CTX_load_verify_locations(ctx, "/opt/certs/rootCA.pem", NULL))
+    if (!SSL_CTX_load_verify_locations(ctx, ROOTCA, NULL))
     {
         ERR_print_errors_fp(stderr);
         abort();
     }
 
     /* set the local certificate from CertFile */
-    if ( SSL_CTX_use_certificate_file(ctx, "/opt/certs/client.crt", SSL_FILETYPE_PEM) <= 0 )
+    if ( SSL_CTX_use_certificate_file(ctx, CLIENT_CRT, SSL_FILETYPE_PEM) <= 0 )
     {
         ERR_print_errors_fp(stderr);
         
         abort();
     }
     /* set the private key from KeyFile (may be the same as CertFile) */
-    if ( SSL_CTX_use_PrivateKey_file(ctx, "/opt/certs/client.key", SSL_FILETYPE_PEM) <= 0 )
+    if ( SSL_CTX_use_PrivateKey_file(ctx, CLIENT_KEY, SSL_FILETYPE_PEM) <= 0 )
     {
         ERR_print_errors_fp(stderr);
         abort();
@@ -172,7 +174,7 @@ extern "C" int create_polo_directories(const char* home, int uid, int gid){
 
     std::vector<Node> nodes;
     Marco marco;
-    marco.request_for(nodes, "marcousers");
+    marco.request_for(nodes, "polousers");
 
     for (unsigned int i = 0; i < nodes.size(); i++)
     {

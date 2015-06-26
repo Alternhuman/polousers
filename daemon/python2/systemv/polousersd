@@ -1,28 +1,28 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          polod
+# Provides:          polousersd
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: The marcopolo resolver
-# Description:       Marcopolo is a service discovering protocol
-#                    based on multicast messaging.
+# Short-Description: The polousers client
+# Description:       Polousers allows decentralized configuration
+#                    of several nodes in the network.
 ### END INIT INFO
 
 # Author: Diego Martin <martinarroyo@usal.es>
 #
 
-#FROM: https://twistedmatrix.com/trac/attachment/ticket/3434/twistdplugin
+# FROM: https://twistedmatrix.com/trac/attachment/ticket/3434/twistdplugin
 
 # Do NOT "set -e"
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-TWISTED_NAME="polod"
-DESC="The marcopolo resolver"
+TWISTED_NAME="polousersd"
+DESC="The polousers client"
 DAEMON=$(which twistd)
-SERVICE_NAME="/etc/marcopolo/daemon/polo_twistd.tac"
+SERVICE_NAME="/etc/polohomedir/daemon/polousers_twistd.tac"
 
 PIDFILE=/var/run/${TWISTED_NAME}.pid
 LOGFILE=/var/log/marcopolo/${TWISTED_NAME}-twistd.log
@@ -31,7 +31,6 @@ DAEMON_OPTS="--pidfile=$PIDFILE --logfile=$LOGFILE -y $SERVICE_NAME"
 
 # Set python path so twistd can find the plugin
 # See: http://twistedmatrix.com/projects/core/documentation/howto/plugin.html
-#export PYTHONPATH=$SERVICE_DIR
 
 if [ ! -x $DAEMON ]; then
   echo "ERROR: Can't execute $DAEMON."
@@ -78,22 +77,12 @@ stop_service() {
   echo "done"
 }
 
-reload_service(){
-  echo -n " * Reloading service $TWISTED_NAME...";
-  start-stop-daemon --stop --signal 10 --quiet --pidfile $PIDFILE
-  echo "done";
-  return 0;
-}
-
 case "$1" in
   start)
     start_service
     ;;
   stop)
     stop_service
-    ;;
-  reload)
-    reload_service
     ;;
   restart)
     stop_service
@@ -103,7 +92,7 @@ case "$1" in
     status_of_proc "$DAEMON" "$TWISTED_NAME" && exit 0 || exit $?
     ;;
   *)
-    echo "Usage: /etc/init.d/$SERVICE_NAME {start|stop|restart|reload|status}" >&2
+    echo "Usage: /etc/init.d/$SERVICE_NAME {start|stop|restart|status}" >&2
     exit 1   
     ;;
 esac

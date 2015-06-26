@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet import ssl, reactor
+
 from OpenSSL import SSL
 import json, os, sys, logging
 import shutil, errno, stat
 import xml.etree.ElementTree as ET
 
+from marcopolo.bindings.polo import Polo
 #umask = 0022
 
 skeldir = '/etc/skel/.' #TODO: Get it from C
@@ -17,7 +20,10 @@ class Servlet(Protocol):
     """
     A Protocol that listens for SSL connections and executes MarcoPolo-like commands
     """
-
+    def startProtocol(self):
+        polo_instance = Polo()
+        polo_instance.publish("marcousers", root=True, permanent=False)
+    
     def dataReceived(self, data):
         """
         Process a new stream of information
@@ -28,17 +34,17 @@ class Servlet(Protocol):
         #The parameters must be separated by commas
         params = data_dict["Params"].split(',',3)
         if data_dict["Command"] == "Create-Home":
-            #TODO: Replace with logging
-            print("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
+            logging.debug("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
             self.create_homedir(params[0], int(params[1]), int(params[2]))
-            print(os.path.join(params[0], 'apache-tomcat-7.0.62'))
+            logging.debug(os.path.join(params[0], 'apache-tomcat-7.0.62'))
             if os.path.exists(os.path.join(params[0], 'apache-tomcat-7.0.62')):
-                print("I shall now configure Tomcat")
+                logging.debug("I shall now configure Tomcat")
                 try:
                     self.configure_tomcat(os.path.join(params[0], 'apache-tomcat-7.0.62'), int(params[1]))
                 except Exception as e:
                     self.transport.write(json.dumps({"Error":str(e)}).encode('utf-8'))
-        print("Created")
+        
+        logging.debug("Created")
         self.transport.write(json.dumps({"OK":0}).encode('utf-8'))
 
     def create_homedir(self, name, uid, gid):
@@ -72,12 +78,12 @@ class Servlet(Protocol):
         try:
             os.chown(name, uid, gid)
         except OSError as e:
-            log.error("Ownership could not be set: %s", e)
+            logging.error("Ownership could not be set: %s", e)
 
         try:
             os.chmod(name, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
         except OSError as e:
-            log.error("Permission could not be set: %s", e)
+            logging.error("Permission could not be set: %s", e)
 
         return
 
@@ -105,7 +111,7 @@ class Servlet(Protocol):
                 raise Exception("Wrong uid value")
 
         server_xml = os.path.join(directory, 'conf/server.xml')
-        print(server_xml)
+        logging.debug(server_xml)
         if not os.path.isfile(server_xml):
             raise Exception("Not found!")
         error = None
@@ -144,7 +150,7 @@ def verifyCallback(connection, x509, errnum, errdepth, ok):
 
     """
     if not ok:
-        print("Invalid certificate from subject ", x509.get_subject())
+        logging.warning("Invalid certificate from subject ", x509.get_subject())
         return False
     else:
         return True
@@ -155,15 +161,14 @@ def main(argv=None):
     Starts the factory for SSL connections
 
     :param list argv: The parameters passed to the command-line entry point
-     (minus the first one)
+    (minus the first one)
     """
-    #TODO: Remove pid MGMT
     factory = Factory()
     factory.protocol = Servlet
 
     myContextFactory = ssl.DefaultOpenSSLContextFactory(
-        '/opt/certs/server.key', '/opt/certs/server.crt'
-        )
+        os.path.join(conf.CERT_DIR, CERT_NAME), os.path.join(conf.CERT_DIR, conf.KEY_NAME)
+    )
 
     ctx = myContextFactory.getContext()
 
@@ -171,12 +176,10 @@ def main(argv=None):
         verifyCallback
     )
 
-    ctx.load_verify_locations("/opt/certs/rootCA.pem")
+    ctx.load_verify_locations(os.path.join(conf.CERT_DIR, conf.CA_NAME))
 
-    if not os.path.exists('/var/run/marcopolo'):
-        os.makedirs('/var/run/marcopolo')
-
-    f = open("/var/run/marcopolo/polousersclient.pid", 'w')
+    
+    f = open("/var/run/polousersclient.pid", 'w')
     f.write(str(os.getpid()))
     f.close()
 

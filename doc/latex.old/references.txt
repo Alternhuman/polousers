@@ -1,9 +1,0 @@
-http://www.grotan.com/ldap/python-ldap-samples.html#search
-http://stackoverflow.com/questions/4841203/how-to-create-a-pam-module
-https://www.packtpub.com/books/content/development-pluggable-authentication-modules-pam
-http://aplawrence.com/Basics/understandingpam.html
-http://www.linux-pam.org/Linux-PAM-html/Linux-PAM_MWG.html
-http://uw714doc.sco.com/en/SEC_pam/pam_appl.html#toc1
-http://aplawrence.com/Basics/understandingpam.html
-https://code.google.com/p/pam-face-authentication/
-
