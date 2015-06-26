@@ -23,7 +23,7 @@ __author__ = 'Diego Martín'
 
 application = twisted.application.service.Application("Polousers")
 
-logging.basicConfig(filename=os.path.join(conf.LOGGING_DIR,'polousers.log'), level=conf.LOGGING_LEVEL.upper(), format=conf.LOGGING_FORMAT)
+logging.basicConfig(filename=os.path.join(conf.LOGGING_DIR,'polousers.log'), level=conf.LOGGING_LEVEL.upper())#, format=conf.LOGGING_FORMAT)
 
 
 def graceful_shutdown():
@@ -31,6 +31,24 @@ def graceful_shutdown():
     Stops the reactor gracefully
     """
     logging.info('Stopping service polod')
+
+def verifyCallback(connection, x509, errnum, errdepth, ok):
+    """
+    The OpenSSL needs the callback to determine the validity of a certificate
+
+    :param connection: The connection
+    :param x509: A x509 object
+    :param int errnum: The error number
+    :param int errdepth: The depth of the error
+    :param bool ok: Determines if the certificate is valid or not. 
+
+    """
+    if not ok:
+        logging.warning("Invalid certificate from subject ", x509.get_subject())
+        return False
+    else:
+        return True
+
 
 def start_polousers():
 	factory = Factory()
@@ -61,6 +79,6 @@ def start_polousers():
 	logging.info('Starting polousersclient')
 
 	reactor.listenSSL(1343, factory, myContextFactory)
-	reactor.run()
-
+	
+	#reactor.run()
 start_polousers()

@@ -178,11 +178,6 @@ def main(argv=None):
 
     ctx.load_verify_locations(os.path.join(conf.CERT_DIR, conf.CA_NAME))
 
-    
-    f = open("/var/run/polousersclient.pid", 'w')
-    f.write(str(os.getpid()))
-    f.close()
-
     if not os.path.exists('/var/log/marcopolo'):
         os.makedirs('/var/log/marcopolo')
 

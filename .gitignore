@@ -49,3 +49,6 @@ doc/doxygen/html/
 doc/doxygen/latex
 doc/doxygen/xmk
 doc/doxygen/xml
+build
+dist
+polousers.egg-info
