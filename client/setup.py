@@ -123,7 +123,7 @@ if __name__ == "__main__":
             "Twisted==15.1.0",
             "zope.interface==4.1.2",
             "marcopolo",
-            "marcopolo.bindings"
+            "marcopolo.bindings",
             "cffi==0.9.2",
             "characteristic==14.3.0",
             "cryptography==0.8.2",
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         }
     )
     
-    if "install" not in sys.argv:
+    if "install" in sys.argv:
         set_cert_permissions()
         if "--polousers-disable-daemons" not in polousers_params:
             enable_service("polousersd")
