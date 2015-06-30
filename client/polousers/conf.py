@@ -8,3 +8,6 @@ CERT_NAME = 'server.crt'
 KEY_NAME = 'server.key'
 CA_NAME = 'rootCA.pem'
 LOGGING_LEVEL = 'DEBUG'
+MAIN_PORT_INCREMENT = 10000
+STOP_PORT_INCREMENT = 20000
+SERVICE_NAME = "polousers"

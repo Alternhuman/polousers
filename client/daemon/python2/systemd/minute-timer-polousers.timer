@@ -1,0 +1,9 @@
+[Unit]
+Description=Minute Timer
+
+[Timer]
+OnBootSec=1min
+Unit=minute-timer.target
+
+[Install]
+WantedBy=basic.target

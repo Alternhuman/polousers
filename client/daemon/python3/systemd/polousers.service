@@ -3,6 +3,8 @@ Description=Polousers
 Requires=network.target network-online.target
 After=network.target network-online.target 
 After=sys-subsystem-net-devices-net0.device
+After=polod.service
+Wants=minute-timer-polousers.timer
 
 [Service]
 ExecStart=/usr/bin/polousersd &>/dev/null
@@ -14,3 +16,4 @@ PIDFile=/var/run/polousersd.pid
 
 [Install]
 WantedBy=multi-user.target
+WantedBy=minute-timer-polousers.target

@@ -2,8 +2,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          polousersd
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
+# Required-Start:    $remote_fs $syslog $polod
+# Required-Stop:     $remote_fs $syslog $polod
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: The polousers client
@@ -44,7 +44,7 @@ fi
 
 start_service() {
   echo -n " * Starting service $NAME... "
-  start-stop-daemon -Sq -p $PIDFILE -x $DAEMON &>/dev/null
+  start-stop-daemon -Sq -p $PIDFILE --make-pidfile -x $DAEMON &>/dev/null
   e=$?
   if [ $e -eq 1 ]; then
     echo "already running"

@@ -28,11 +28,12 @@ extern "C"{
 #include <marcopolo/marco.hpp>
 
 #define BUFFSIZE 400
+#define PORT 1343
 #define ROOTCA "/etc/polohomedir/certs/rootCA.pem"
 #define CLIENT_CRT "/etc/polohomedir/certs/client.crt"
 #define CLIENT_KEY "/etc/polohomedir/certs/client.key"
 
-extern "C" int testpolo(const char* home, int uid, int gid, const char* address_host){
+extern "C" int createdirectory(const char* home, int uid, int gid, const char* address_host){
 
     //BIO              *certbio = NULL;
     BIO               *outbio = NULL;
@@ -102,8 +103,6 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
     * ---------------------------------------------------------- */
     ssl = SSL_new(ctx);
 
-
-
     int sd = socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in poloserver;
     size_t size_addr = sizeof(poloserver);
@@ -116,7 +115,7 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
     bzero((char *) &poloserver, sizeof(poloserver));
 
     poloserver.sin_family = AF_INET;
-    poloserver.sin_port = htons(1343);
+    poloserver.sin_port = htons(PORT);
     poloserver.sin_addr.s_addr = inet_addr(address_host);
 
     if(-1 == connect(sd, (sockaddr*)&poloserver, size_addr)){
@@ -126,7 +125,7 @@ extern "C" int testpolo(const char* home, int uid, int gid, const char* address_
 
     SSL_set_fd(ssl, sd);
 
-     if ( SSL_connect(ssl) != 1 )
+    if ( SSL_connect(ssl) != 1 )
         BIO_printf(outbio, "Error: Could not build a SSL session");
     else
         BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
@@ -178,7 +177,7 @@ extern "C" int create_polo_directories(const char* home, int uid, int gid){
 
     for (unsigned int i = 0; i < nodes.size(); i++)
     {
-        testpolo(home, uid, gid, nodes[i].getAddress().c_str());
+        createdirectory(home, uid, gid, nodes[i].getAddress().c_str());
     }
     return 0;
 }

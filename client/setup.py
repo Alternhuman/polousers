@@ -18,8 +18,6 @@ custom_polouser_params = [
                           "--polousers-no-start"
                          ]
 
-
-
 def detect_init():
     try:
         subprocess.check_call(["systemctl", "--version"], stdout=None, stderr=None, shell=False)
@@ -105,16 +103,18 @@ if __name__ == "__main__":
         author_email="martinarroyo@usal.es",
         license="MIT",
         classifiers=[
-             'Development Status :: 3 - Alpha',
+            'Development Status :: 3 - Alpha',
 
-             'Intended Audience :: Developers',
+            'Intended Audience :: Developers',
+            'Intended Audience :: System Administrators',
 
-             'Topic :: Software Development :: Build Tools',
+            'Topic :: System :: Systems Administration :: Authentication/Directory',
 
-             'License :: OSI Approved :: MIT License',
+            'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
 
-             'Programming Language :: Python :: 2.7',
-             'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3.4',
+            'Natural Language :: English',
 
         ],
         keywords="polousers ldap",
@@ -123,7 +123,7 @@ if __name__ == "__main__":
             "Twisted==15.1.0",
             "zope.interface==4.1.2",
             "marcopolo",
-            "marcopolobindings"
+            "marcopolo.bindings"
             "cffi==0.9.2",
             "characteristic==14.3.0",
             "cryptography==0.8.2",
@@ -139,15 +139,14 @@ if __name__ == "__main__":
         entry_points={
             'console_scripts': ['polousersd = polousers.clientssl:main']
         }
-
     )
-
-    set_cert_permissions()
-
-    if "--polousers-disable-daemons" not in polousers_params:
-        enable_service("polousersd")
-        if "--polousers-no-start" not in polousers_params:
-            start_service("polousersd")
     
-    if not os.path.exists("/var/log/marcopolo"):
-        os.makedirs('/var/log/marcopolo')
+    if "install" not in sys.argv:
+        set_cert_permissions()
+        if "--polousers-disable-daemons" not in polousers_params:
+            enable_service("polousersd")
+            if "--polousers-no-start" not in polousers_params:
+                start_service("polousersd")
+    
+        if not os.path.exists("/var/log/marcopolo"):
+            os.makedirs('/var/log/marcopolo')

@@ -10,8 +10,10 @@ from OpenSSL import SSL
 import json, os, sys, logging
 import shutil, errno, stat
 import xml.etree.ElementTree as ET
+import six
+import time
 
-from marcopolo.bindings.polo import Polo
+from marcopolo.bindings.polo import Polo, PoloException, PoloInternalException
 #umask = 0022
 
 skeldir = '/etc/skel/.' #TODO: Get it from C
@@ -20,9 +22,35 @@ class Servlet(Protocol):
     """
     A Protocol that listens for SSL connections and executes MarcoPolo-like commands
     """
+    def publish_service(self, service):
+        while True:
+            try:
+                self.polo_instance = Polo()
+                self.polo_instance.publish(service, root=True, permanent=False)
+                break
+            except PoloInternalException as pi:
+                logging.warning(pi)
+                time.sleep(2)
+            except PoloException as pe:
+                logging.warning(pe)
+                break;
+            except Exception as e:
+                logging.error(e)
+                break
+
     def startProtocol(self):
-        polo_instance = Polo()
-        polo_instance.publish("marcousers", root=True, permanent=False)
+        self.publish_service(conf.SERVICE_NAME)
+        reactor.addSystemTrigger('before', 'shutdown', self.stopService)
+
+    def stopService(self):
+        try:
+            self.polo_instance.unpublish(conf.SERVICE_NAME)
+        except PoloInternalException as pi:
+            logging.warning(pi)
+        except PoloException as pe:
+            logging.warning(pe)
+        except Exception as e:
+            logging.error(e)
     
     def dataReceived(self, data):
         """
@@ -70,10 +98,8 @@ class Servlet(Protocol):
                 logging.error("Directory not copied. Error %s" % e)
 
         for root, dirs, files in os.walk(name):
-            for d in dirs:
-                os.chown(os.path.join(root, d), uid, gid)
-            for f in files:
-                os.chown(os.path.join(root, f), uid, gid)
+            for d in dirs: os.chown(os.path.join(root, d), uid, gid)
+            for f in files: os.chown(os.path.join(root, f), uid, gid)
 
         try:
             os.chown(name, uid, gid)
@@ -100,7 +126,7 @@ class Servlet(Protocol):
 
         :param int uid: The uid of the user, which determines the number of the port
         """
-        if not isinstance(uid, int):
+        if not isinstance(uid, six.integer_types):
             error = None
             try:
                 uid = int(uid, 10)
@@ -125,7 +151,7 @@ class Servlet(Protocol):
 
         root = tree.getroot()
 
-        root.attrib["port"] = str(uid+20000)
+        root.attrib["port"] = str(uid+conf.STOP_PORT_INCREMENT)
 
         ajp = root.find("./Service[@name='Catalina']/Connector[@protocol='AJP/1.3']")
         http = root.find("./Service[@name='Catalina']/Connector[@protocol='HTTP/1.1']")
@@ -134,7 +160,7 @@ class Servlet(Protocol):
             raise Exception("Necessary tags elements not found in XML")
         
         http.attrib["port"] = str(uid)
-        ajp.attrib["port"] = str(uid+10000)
+        ajp.attrib["port"] = str(uid+conf.MAIN_PORT_INCREMENT)
 
         tree.write(server_xml)
 
