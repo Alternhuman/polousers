@@ -27,16 +27,45 @@ extern "C"{
 
 #include <marcopolo/marco.hpp>
 
+#include <syslog.h>
+#include <stdarg.h>
+
 #define BUFFSIZE 400
 #define PORT 1343
 #define ROOTCA "/etc/polohomedir/certs/rootCA.pem"
 #define CLIENT_CRT "/etc/polohomedir/certs/client.crt"
 #define CLIENT_KEY "/etc/polohomedir/certs/client.key"
+#define TIMEOUT 400
+//https://en.wikibooks.org/wiki/OpenSSL/Error_handling
+const char *ossl_err_as_string (void)
+{ 
+    BIO *bio = BIO_new (BIO_s_mem ());
+    ERR_print_errors (bio);
+    char *buf = NULL;
+    size_t len = BIO_get_mem_data (bio, &buf);
+    char *ret = (char *) calloc (1, 1 + len);
+    
+    if (ret)
+        memcpy (ret, buf, len);
+    
+    BIO_free (bio);
+    return ret;
+}
+
+void _logentry(int err, const char *format, ...){
+    va_list args;
+
+    va_start(args, format);
+    openlog("PAM-mkpolohomedir", LOG_CONS|LOG_PID, LOG_AUTH);
+    vsyslog(err, format, args);
+    va_end(args);
+    closelog();
+}
 
 extern "C" int createdirectory(const char* home, int uid, int gid, const char* address_host){
 
     //BIO              *certbio = NULL;
-    BIO               *outbio = NULL;
+    //BIO               *outbio = NULL;
     //X509                *cert = NULL;
     //X509_NAME       *certname = NULL;
     const SSL_METHOD *method;
@@ -49,10 +78,11 @@ extern "C" int createdirectory(const char* home, int uid, int gid, const char* a
     SSL_load_error_strings();
 
     //certbio = BIO_new(BIO_s_file());
-    outbio  = BIO_new_fp(stdout, BIO_NOCLOSE);
+    //outbio  = BIO_new_fp(stdout, BIO_NOCLOSE);
 
     if(SSL_library_init() < 0)
-        BIO_printf(outbio, "Could not initialize the OpenSSL library !\n");
+        //BIO_printf(outbio, "Could not initialize the OpenSSL library !\n");
+        _logentry(LOG_ERR, "Could not initialize the OpenSSL library !");
 
     /* ---------------------------------------------------------- *
     * Set SSLv2 client hello, also announce SSLv3 and TLSv1      *
@@ -63,7 +93,8 @@ extern "C" int createdirectory(const char* home, int uid, int gid, const char* a
     * Try to create a new SSL context                            *
     * ---------------------------------------------------------- */
     if ( (ctx = SSL_CTX_new(method)) == NULL)
-        BIO_printf(outbio, "Unable to create a new SSL context structure.\n");
+        //BIO_printf(outbio, "Unable to create a new SSL context structure.\n");
+        _logentry(LOG_ERR, "Unable to create a new SSL context structure");
 
     /* ---------------------------------------------------------- *
     * Disabling SSLv2 will leave v3 and TSLv1 for negotiation    *
@@ -71,27 +102,31 @@ extern "C" int createdirectory(const char* home, int uid, int gid, const char* a
     // SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2);
     if (!SSL_CTX_load_verify_locations(ctx, ROOTCA, NULL))
     {
-        ERR_print_errors_fp(stderr);
+        //ERR_print_errors_fp(stderr);
+        _logentry(LOG_ERR, ossl_err_as_string());
+        _logentry(LOG_ERR, "Could not load the verify locations. Make sure that the file %s exists and has the proper permissions", ROOTCA);
         abort();
     }
 
     /* set the local certificate from CertFile */
     if ( SSL_CTX_use_certificate_file(ctx, CLIENT_CRT, SSL_FILETYPE_PEM) <= 0 )
     {
-        ERR_print_errors_fp(stderr);
-        
+        //ERR_print_errors_fp(stderr);
+        _logentry(LOG_ERR, ossl_err_as_string());
         abort();
     }
     /* set the private key from KeyFile (may be the same as CertFile) */
     if ( SSL_CTX_use_PrivateKey_file(ctx, CLIENT_KEY, SSL_FILETYPE_PEM) <= 0 )
     {
-        ERR_print_errors_fp(stderr);
+        //ERR_print_errors_fp(stderr);
+        _logentry(LOG_ERR, ossl_err_as_string());
         abort();
     }
     /* verify private key */
     if ( !SSL_CTX_check_private_key(ctx) )
     {
-        fprintf(stderr, "Private key does not match the public certificate\n");
+        //fprintf(stderr, "Private key does not match the public certificate\n");
+        _logentry(LOG_ERR, "Private key does not match the public certificate");
         abort();
     }
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
@@ -126,9 +161,11 @@ extern "C" int createdirectory(const char* home, int uid, int gid, const char* a
     SSL_set_fd(ssl, sd);
 
     if ( SSL_connect(ssl) != 1 )
-        BIO_printf(outbio, "Error: Could not build a SSL session");
+        //BIO_printf(outbio, "Error: Could not build a SSL session");
+        _logentry(LOG_ERR, "Error: Could not build a SSL session");
     else
-        BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
+        //BIO_printf(outbio, "Successfully enabled SSL/TLS session\n");
+        _logentry(LOG_DEBUG, "Successfully enabled SSL/TLS session");
 
     rapidjson::Document writer;
     rapidjson::Document::AllocatorType& allocator = writer.GetAllocator();
@@ -163,7 +200,7 @@ extern "C" int createdirectory(const char* home, int uid, int gid, const char* a
     char aux3[len];
     if (len > 0){
         strncpy(aux3, buf_recv, len);
-        printf("%s\n", aux3);
+        _logentry(LOG_DEBUG, "%s", aux3);
     }
     
     return 0;
@@ -172,7 +209,7 @@ extern "C" int createdirectory(const char* home, int uid, int gid, const char* a
 extern "C" int create_polo_directories(const char* home, int uid, int gid){
 
     std::vector<Node> nodes;
-    Marco marco;
+    Marco marco(TIMEOUT);
     marco.request_for(nodes, "polousers");
 
     for (unsigned int i = 0; i < nodes.size(); i++)
