@@ -8,8 +8,9 @@ ldapsearch -x -D uid=$username,ou=people,dc=DIA -W -H ldap://ldap1.cie.aulas.usa
 
 echo "Starting nslcd.service"
 
-systemctl start nslcd.service
 systemctl enable nslcd.service
-echo "Testing connection"
+systemctl start nslcd.service
 
-getent passwd
+#echo "Testing connection"
+
+#getent passwd
