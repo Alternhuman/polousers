@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-The polousers client
+The marcopolo-users client
 """
 
 from setuptools import setup, find_packages
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     data_files.extend(cert_files)
     
     setup(
-        name="polousers",
+        name="marcopolo-users",
         provides=["polousers"],
         version='0.0.1',
         description="The polousers client",
