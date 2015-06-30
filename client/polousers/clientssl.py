@@ -41,7 +41,13 @@ class Servlet(Protocol):
         #The parameters must be separated by commas
         params = data_dict["Params"].split(',',3)
         if data_dict["Command"] == "Create-Home":
+            """The response is acknowledged as soon as possible in order
+             to avoid a long waiting time in the requesting node
+            """
+            self.transport.write(json.dumps({"OK":0}).encode('utf-8'))
+            
             logging.debug("I shall now create the directory %s for %d %d with the utmost pleasure" % (params[0], int(params[1]), int(params[2])))
+            
             retval = self.create_homedir(params[0], int(params[1]), int(params[2]))
             logging.debug(os.path.join(params[0], 'apache-tomcat-7.0.62'))
             if os.path.exists(os.path.join(params[0], 'apache-tomcat-7.0.62')):
@@ -49,12 +55,15 @@ class Servlet(Protocol):
                 try:
                     self.configure_tomcat(os.path.join(params[0], 'apache-tomcat-7.0.62'), int(params[1]))
                 except Exception as e:
-                    self.transport.write(json.dumps({"Error":str(e)}).encode('utf-8'))
+                    logging.debug(e)
+                    #self.transport.write(json.dumps({"Error":str(e)}).encode('utf-8'))
             if retval == 0:
                 logging.debug("Created")
             if retval == 1:
                 logging.debug("The directory was not created because it already exists")
-        self.transport.write(json.dumps({"OK":0}).encode('utf-8'))
+        else:
+            # Wrong command
+            self.transport.write(json.dumps({"Error":1}).encode('utf-8'))
 
     def create_homedir(self, name, uid, gid):
         """
