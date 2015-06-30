@@ -354,8 +354,7 @@ static int create_homedir(pam_handle_t * pamh, int ctrl,
         close(DestFd);
     }
 
-    if (snprintf(remark,sizeof(remark),"Creating directory in the rest of the nodes... '%s'.", dest) == -1)
-        return PAM_PERM_DENIED;
+    
 
     make_remark(pamh, ctrl, remark);
     //createdirs(dest, pwd->pw_uid,pwd->pw_gid);  //call the function here
@@ -409,6 +408,8 @@ int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc, const char **a
     if (stat(pwd->pw_dir,&St) == 0)
         return PAM_SUCCESS;
     //Contingency for user directory if it does not exist
+    if (snprintf(remark,sizeof(remark),"Creating directory in the rest of the nodes... '%s'.", dest) == -1)
+        return PAM_PERM_DENIED;
     return create_homedir(pamh,ctrl,pwd,SkelDir,pwd->pw_dir);
 }
 
