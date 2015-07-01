@@ -67,7 +67,9 @@ if __name__ == "__main__":
     with open(os.path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
         long_description = f.read()
 
-    data_files = []
+    data_files = [
+                    ('/etc/polohomedir', ["etc/polohomedir/polousers.cfg"])
+                 ]
     cert_files =  [
                     ('/etc/polohomedir/certs', glob.glob("etc/polohomedir/certs/*")),
                  ]
@@ -95,7 +97,7 @@ if __name__ == "__main__":
     setup(
         name="marcopolo-users",
         provides=["polousers"],
-        version='0.0.1',
+        version='0.0.2',
         description="The polousers client",
         long_description=long_description,
         url="marcopolo.martinarroyo.net",
