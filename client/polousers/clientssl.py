@@ -18,7 +18,7 @@ from polousers import conf
 from marcopolo.bindings.polo import Polo, PoloException, PoloInternalException
 #umask = 0022
 
-skeldir = '/etc/skel/.' #TODO: Get it from C
+skeldir = '/etc/skel/.'
 
 class Servlet(Protocol):
     """

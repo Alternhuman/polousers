@@ -37,6 +37,21 @@ Cada nodo cuenta con una instancia del esclavo de **polousers**, el servicio que
 
 Una vez creado el directorio, el servicio así lo indica al solicitante, que almacena el registro de dicha operación.
 
+Un módulo en PAM debe implementar una serie de funciones que constituirán los puntos de entrada al módulo.
+
+- ``PAM_EXTERN int pam_sm_open_session(pam_handle_t * pamh, int flags, int argc ,const char **argv)``
+
+    Es la función que **PAM** invoca al incluir el módulo. Incluye en el mismo una estructura ``pam_handle_t`` con toda la información relevante sobre el usuario que ha iniciado sesión y los parámetros indicados en los ficheros de configuración de ``PAM`` (en el caso de este módulo, los permisos del directorio de inicio y la localización del directorio *skeleton*). 
+
+- ``PAM_EXTERN int pam_sm_close_session(pam_handle_t * pamh, int flags, int argc, const char **argv)``
+
+    Es la función que **PAM** utiliza para indicar al módulo que la sesión ha terminado. En el caso del módulo a crear no se debe realizar ninguna acción en este evento, sin embargo es necesario implementarla debido a que PAM la requiere.
+
+- ``struct pam_module _pam_mkhomedir_modstruct``
+
+    Define las características del módulo y los puntos de entrada que define.
+
+
 Bibliografía
 ------------
 
