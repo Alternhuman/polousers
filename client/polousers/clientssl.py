@@ -76,17 +76,17 @@ class Servlet(Protocol):
         :param int gid: The gid of the owner's main group
         """
         if os.path.exists(name):
-            logging.info("The directory %s already exists.", name)
+            logging.debug("The directory %s already exists.", name)
             return 1
 
         try:
             shutil.copytree(skeldir, name)
         except OSError as e:
-            if e.errno == errno.ENOTDIR:
-                shutil.copy(src, name)
-            else:
-                logging.error("Directory not copied. Error %s" % e)
-                return 2
+            #if e.errno == errno.ENOTDIR:
+            #    logging#shutil.copy(src, name) TODO
+            #else:
+            logging.error("Directory not copied. Error %s" % e)
+            return 2
 
         try:
             for root, dirs, files in os.walk(name):
